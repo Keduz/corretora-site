@@ -2,26 +2,74 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #FBF9F5;
+  color: #34343A;
+  overflow-x: hidden;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+::selection {
+  background: rgba(212, 168, 67, 0.25);
+  color: #232328;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #F5F0E8; }
+::-webkit-scrollbar-thumb { background: #D4A843; border-radius: 3px; }
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-8 py-4 font-medium text-white rounded-lg transition-all duration-300;
+    background: linear-gradient(135deg, #6B7F4A, #94A76B);
+    box-shadow: 0 4px 20px rgba(107, 127, 74, 0.3);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 8px 32px rgba(107, 127, 74, 0.45);
+    transform: translateY(-2px);
+  }
+
+  .btn-whatsapp {
+    @apply inline-flex items-center gap-2.5 px-8 py-4 font-semibold text-white rounded-lg transition-all duration-300;
+    background: #25D366;
+    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.3);
+  }
+  .btn-whatsapp:hover {
+    background: #20BD5A;
+    box-shadow: 0 8px 32px rgba(37, 211, 102, 0.45);
+    transform: translateY(-2px);
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center gap-2 px-8 py-4 font-medium rounded-lg border-2 transition-all duration-300;
+    border-color: #D4A843;
+    color: #D4A843;
+  }
+  .btn-outline:hover {
+    background: #D4A843;
+    color: #fff;
+  }
+
+  .card-property {
+    @apply bg-white rounded-2xl overflow-hidden transition-all duration-500;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  }
+  .card-property:hover {
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+    transform: translateY(-6px);
+  }
+
+  .section-padding {
+    @apply py-20 md:py-28 px-5 md:px-10;
+  }
+
+  .gold-divider {
+    @apply w-16 h-[2px] rounded-full;
+    background: linear-gradient(90deg, #D4A843, #B8922E);
   }
 }
