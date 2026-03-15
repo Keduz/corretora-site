@@ -4,6 +4,9 @@ import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import Link from 'next/link'
 import type { Property } from '@/data/properties'
+import { formatPrice } from '@/data/properties'
+import ImageGallery from '@/components/ImageGallery'
+import FavoriteButton from '@/components/FavoriteButton'
 
 const WHATSAPP_URL = 'https://wa.me/5571999999999'
 
@@ -18,14 +21,18 @@ const typeLabels: Record<string, string> = {
 export default function PropertyDetailClient({
   property,
   formattedPrice,
+  similarProperties,
 }: {
   property: Property
   formattedPrice: string
+  similarProperties: Property[]
 }) {
   const detailsRef = useRef(null)
   const detailsInView = useInView(detailsRef, { once: true, margin: '-80px' })
   const featuresRef = useRef(null)
   const featuresInView = useInView(featuresRef, { once: true, margin: '-80px' })
+  const similarRef = useRef(null)
+  const similarInView = useInView(similarRef, { once: true, margin: '-80px' })
 
   const whatsappMessage = encodeURIComponent(
     `Ola! Tenho interesse no imovel: ${property.title} (${formattedPrice}). Gostaria de agendar uma visita.`
@@ -34,7 +41,7 @@ export default function PropertyDetailClient({
   return (
     <main>
       {/* Hero / Image Area */}
-      <section className="relative bg-charcoal-800 pt-28 pb-12 md:pt-32 md:pb-16">
+      <section className="relative bg-charcoal-800 pt-28 pb-6 md:pt-32 md:pb-8">
         <div className="max-w-7xl mx-auto px-5 md:px-10">
           {/* Breadcrumb */}
           <motion.nav
@@ -54,26 +61,29 @@ export default function PropertyDetailClient({
             <span className="text-sand-300">{property.title}</span>
           </motion.nav>
 
-          {/* Large Property Image */}
+          {/* Image Gallery */}
           <motion.div
-            className="relative h-[300px] md:h-[450px] lg:h-[500px] rounded-2xl bg-charcoal-700 overflow-hidden"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
+            className="relative"
           >
-            <img
-              src={property.images[0]}
-              alt={property.title}
-              className="object-cover w-full h-full"
-            />
-
             {/* Badges */}
-            <span className="absolute top-4 left-4 bg-olive-600 text-white text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full">
-              {typeLabels[property.type] || property.type}
-            </span>
-            <span className="absolute top-4 right-4 bg-charcoal-800/80 text-white text-xs font-medium px-3 py-1.5 rounded-full backdrop-blur-sm">
-              {property.transaction === 'venda' ? 'Venda' : 'Aluguel'}
-            </span>
+            <div className="absolute top-4 left-4 z-10 flex gap-2">
+              <span className="bg-olive-600 text-white text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full">
+                {typeLabels[property.type] || property.type}
+              </span>
+              <span className="bg-charcoal-800/80 text-white text-xs font-medium px-3 py-1.5 rounded-full backdrop-blur-sm">
+                {property.transaction === 'venda' ? 'Venda' : 'Aluguel'}
+              </span>
+            </div>
+
+            {/* Favorite Button */}
+            <div className="absolute top-4 right-4 z-10">
+              <FavoriteButton propertyId={property.id} propertyTitle={property.title} size="md" />
+            </div>
+
+            <ImageGallery images={property.images} title={property.title} />
           </motion.div>
         </div>
       </section>
@@ -107,13 +117,18 @@ export default function PropertyDetailClient({
                     <p className="text-gold-500 font-heading text-3xl md:text-4xl font-bold">
                       {formattedPrice}
                     </p>
+                    {property.condoFee && (
+                      <p className="text-charcoal-400 text-sm mt-1">
+                        Condominio: R$ {property.condoFee.toLocaleString('pt-BR')}/mes
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 <div className="gold-divider mt-6" />
 
                 {/* Details Grid */}
-                <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
                   {property.bedrooms > 0 && (
                     <div className="flex items-center gap-3 p-4 bg-white rounded-xl">
                       <div className="w-10 h-10 rounded-lg bg-olive-50 flex items-center justify-center text-olive-600">
@@ -194,6 +209,19 @@ export default function PropertyDetailClient({
                     ))}
                   </motion.div>
                 </div>
+
+                {/* Location placeholder */}
+                <div className="mt-10">
+                  <h2 className="font-heading text-2xl text-charcoal-800 mb-4">Localizacao</h2>
+                  <div className="h-64 rounded-2xl bg-charcoal-200 flex items-center justify-center overflow-hidden">
+                    <div className="text-center">
+                      <svg className="w-10 h-10 text-charcoal-400 mx-auto mb-2" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
+                      </svg>
+                      <p className="text-charcoal-500 font-medium">{property.neighborhood}, {property.city} - BA</p>
+                    </div>
+                  </div>
+                </div>
               </motion.div>
             </div>
 
@@ -232,6 +260,57 @@ export default function PropertyDetailClient({
                   </div>
                 </div>
 
+                {/* Property Summary Card */}
+                <div className="bg-white rounded-2xl shadow-sm p-6">
+                  <h3 className="font-heading text-lg text-charcoal-800 mb-4">Resumo do Imovel</h3>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-charcoal-500">Tipo</span>
+                      <span className="text-charcoal-800 font-medium">{typeLabels[property.type]}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-charcoal-500">Transacao</span>
+                      <span className="text-charcoal-800 font-medium">{property.transaction === 'venda' ? 'Venda' : 'Aluguel'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-charcoal-500">Area</span>
+                      <span className="text-charcoal-800 font-medium">{property.area}m&sup2;</span>
+                    </div>
+                    {property.bedrooms > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-charcoal-500">Quartos</span>
+                        <span className="text-charcoal-800 font-medium">{property.bedrooms}</span>
+                      </div>
+                    )}
+                    {property.bathrooms > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-charcoal-500">Banheiros</span>
+                        <span className="text-charcoal-800 font-medium">{property.bathrooms}</span>
+                      </div>
+                    )}
+                    {property.parking > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-charcoal-500">Vagas</span>
+                        <span className="text-charcoal-800 font-medium">{property.parking}</span>
+                      </div>
+                    )}
+                    {property.condoFee && (
+                      <div className="flex justify-between">
+                        <span className="text-charcoal-500">Condominio</span>
+                        <span className="text-charcoal-800 font-medium">R$ {property.condoFee.toLocaleString('pt-BR')}/mes</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-charcoal-500">Cidade</span>
+                      <span className="text-charcoal-800 font-medium">{property.city}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-charcoal-500">Bairro</span>
+                      <span className="text-charcoal-800 font-medium">{property.neighborhood}</span>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Contact Card */}
                 <div className="bg-white rounded-2xl shadow-sm p-6">
                   <h3 className="font-heading text-lg text-charcoal-800 mb-4">Informacoes de Contato</h3>
@@ -266,6 +345,77 @@ export default function PropertyDetailClient({
           </div>
         </div>
       </section>
+
+      {/* Similar Properties */}
+      {similarProperties.length > 0 && (
+        <section className="section-padding bg-white" ref={similarRef}>
+          <div className="max-w-7xl mx-auto">
+            <motion.div
+              className="mb-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={similarInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="font-heading text-3xl text-charcoal-800">Imoveis Similares</h2>
+              <div className="gold-divider mt-4" />
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {similarProperties.map((p, index) => (
+                <motion.div
+                  key={p.id}
+                  className="card-property group"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={similarInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ delay: index * 0.15, duration: 0.5 }}
+                >
+                  <div className="relative h-56 bg-charcoal-200 overflow-hidden">
+                    <img
+                      src={p.images[0]}
+                      alt={p.title}
+                      className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <span className="absolute top-4 left-4 bg-olive-600 text-white text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full">
+                      {typeLabels[p.type] || p.type}
+                    </span>
+                    <div className="absolute top-4 right-4">
+                      <FavoriteButton propertyId={p.id} propertyTitle={p.title} />
+                    </div>
+                    <div className="absolute inset-0 bg-charcoal-900/0 group-hover:bg-charcoal-900/20 transition-colors duration-500" />
+                  </div>
+                  <div className="p-6">
+                    <p className="text-gold-500 font-heading text-2xl font-bold">
+                      {formatPrice(p.price, p.transaction)}
+                    </p>
+                    <h3 className="mt-2 font-heading text-lg text-charcoal-800 group-hover:text-olive-600 transition-colors">
+                      {p.title}
+                    </h3>
+                    <div className="mt-2 flex items-center gap-1.5 text-charcoal-400 text-sm">
+                      <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0115 0z" />
+                      </svg>
+                      {p.neighborhood}, {p.city}
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-sand-100">
+                      <Link
+                        href={`/imoveis/${p.slug}`}
+                        className="text-olive-600 text-sm font-medium hover:text-olive-700 transition-colors flex items-center gap-1"
+                      >
+                        Ver Detalhes
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                        </svg>
+                      </Link>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </main>
   )
 }

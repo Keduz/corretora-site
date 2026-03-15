@@ -3,43 +3,10 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import Link from 'next/link'
-import { getFeaturedProperties, formatPrice } from '@/data/properties'
-
-function BedIcon() {
-  return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6m-6 3.75h6M9 14.25h6"
-      />
-    </svg>
-  )
-}
-
-function BathIcon() {
-  return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-      />
-    </svg>
-  )
-}
-
-function AreaIcon() {
-  return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"
-      />
-    </svg>
-  )
-}
+import { formatPrice } from '@/data/properties'
+import { useProperties } from '@/hooks/useProperties'
+import ImageCarousel from '@/components/ImageCarousel'
+import FavoriteButton from '@/components/FavoriteButton'
 
 const typeLabels: Record<string, string> = {
   apartamento: 'Apartamento',
@@ -65,7 +32,8 @@ const cardVariants = {
 export default function FeaturedProperties() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
-  const properties = getFeaturedProperties()
+  const allProperties = useProperties()
+  const properties = allProperties.filter((p) => p.featured && p.status === 'ativo')
 
   return (
     <section className="section-padding bg-sand-50" ref={ref}>
@@ -97,26 +65,27 @@ export default function FeaturedProperties() {
               animate={isInView ? 'visible' : 'hidden'}
               variants={cardVariants}
             >
-              {/* Image */}
-              <div className="relative h-56 bg-charcoal-200 overflow-hidden">
-                <img
-                  src={property.images[0]}
-                  alt={property.title}
-                  className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
-                />
+              {/* Image Carousel */}
+              <div className="relative">
+                <ImageCarousel images={property.images} title={property.title} />
 
                 {/* Type badge */}
-                <span className="absolute top-4 left-4 bg-olive-600 text-white text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full">
+                <span className="absolute top-4 left-4 z-10 bg-olive-600 text-white text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full">
                   {typeLabels[property.type] || property.type}
                 </span>
 
                 {/* Transaction badge */}
-                <span className="absolute top-4 right-4 bg-charcoal-800/80 text-white text-xs font-medium px-3 py-1.5 rounded-full backdrop-blur-sm">
+                <span className="absolute top-4 right-14 z-10 bg-charcoal-800/80 text-white text-xs font-medium px-3 py-1.5 rounded-full backdrop-blur-sm">
                   {property.transaction === 'venda' ? 'Venda' : 'Aluguel'}
                 </span>
 
+                {/* Favorite button */}
+                <div className="absolute top-3 right-3 z-10">
+                  <FavoriteButton propertyId={property.id} propertyTitle={property.title} />
+                </div>
+
                 {/* Hover overlay */}
-                <div className="absolute inset-0 bg-charcoal-900/0 group-hover:bg-charcoal-900/20 transition-colors duration-500" />
+                <div className="absolute inset-0 bg-charcoal-900/0 group-hover:bg-charcoal-900/10 transition-colors duration-500 pointer-events-none" />
               </div>
 
               {/* Card body */}
@@ -125,6 +94,9 @@ export default function FeaturedProperties() {
                 <p className="text-gold-500 font-heading text-2xl font-bold">
                   {formatPrice(property.price, property.transaction)}
                 </p>
+                {property.condoFee && (
+                  <p className="text-charcoal-400 text-xs mt-0.5">+ cond. R$ {property.condoFee.toLocaleString('pt-BR')}/mes</p>
+                )}
 
                 {/* Title */}
                 <h3 className="mt-2 font-heading text-lg text-charcoal-800 group-hover:text-olive-600 transition-colors">
@@ -133,23 +105,9 @@ export default function FeaturedProperties() {
 
                 {/* Location */}
                 <div className="mt-2 flex items-center gap-1.5 text-charcoal-400 text-sm">
-                  <svg
-                    className="w-4 h-4 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
-                    />
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0115 0z" />
                   </svg>
                   {property.neighborhood}, {property.city}
                 </div>
@@ -161,18 +119,24 @@ export default function FeaturedProperties() {
                     <div className="flex items-center gap-4 text-charcoal-500 text-sm">
                       {property.bedrooms > 0 && (
                         <div className="flex items-center gap-1" title="Quartos">
-                          <BedIcon />
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6m-6 3.75h6M9 14.25h6" />
+                          </svg>
                           <span>{property.bedrooms}</span>
                         </div>
                       )}
                       {property.bathrooms > 0 && (
                         <div className="flex items-center gap-1" title="Banheiros">
-                          <BathIcon />
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
                           <span>{property.bathrooms}</span>
                         </div>
                       )}
                       <div className="flex items-center gap-1" title="Area">
-                        <AreaIcon />
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                        </svg>
                         <span>{property.area}m&sup2;</span>
                       </div>
                     </div>
@@ -183,18 +147,8 @@ export default function FeaturedProperties() {
                       className="text-olive-600 text-sm font-medium hover:text-olive-700 transition-colors flex items-center gap-1"
                     >
                       Ver Detalhes
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                        />
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                       </svg>
                     </Link>
                   </div>
@@ -213,18 +167,8 @@ export default function FeaturedProperties() {
         >
           <Link href="/imoveis" className="btn-outline">
             Ver Todos os Im&oacute;veis
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M17 8l4 4m0 0l-4 4m4-4H3"
-              />
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
           </Link>
         </motion.div>

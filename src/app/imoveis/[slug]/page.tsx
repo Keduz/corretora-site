@@ -1,4 +1,4 @@
-import { properties, getPropertyBySlug, formatPrice } from '@/data/properties'
+import { properties, getPropertyBySlug, getSimilarProperties, formatPrice } from '@/data/properties'
 import { notFound } from 'next/navigation'
 import PropertyDetailClient from './PropertyDetailClient'
 
@@ -15,5 +15,13 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
     notFound()
   }
 
-  return <PropertyDetailClient property={property} formattedPrice={formatPrice(property.price, property.transaction)} />
+  const similar = getSimilarProperties(property, 3)
+
+  return (
+    <PropertyDetailClient
+      property={property}
+      formattedPrice={formatPrice(property.price, property.transaction)}
+      similarProperties={similar}
+    />
+  )
 }

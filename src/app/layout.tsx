@@ -1,9 +1,8 @@
 import type { Metadata } from 'next'
 import { Playfair_Display, Inter } from 'next/font/google'
 import './globals.css'
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
-import WhatsAppFloat from '@/components/WhatsAppFloat'
+import Providers from '@/components/Providers'
+import ConditionalShell from '@/components/ConditionalShell'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -37,10 +36,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" className={`${playfair.variable} ${inter.variable}`}>
       <body className="font-body antialiased">
-        <Navbar />
-        {children}
-        <Footer />
-        <WhatsAppFloat />
+        <Providers>
+          <ConditionalShell>
+            {children}
+          </ConditionalShell>
+        </Providers>
       </body>
     </html>
   )
