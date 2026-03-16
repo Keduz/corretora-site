@@ -1,109 +1,44 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import type { Group, LineSegments, Color, Mesh, LineBasicMaterial as LBM } from 'three'
 
-const WHATSAPP_URL = 'https://wa.me/5571999999999'
-
-function LuxuryPattern() {
-  return (
-    <svg
-      className="absolute inset-0 w-full h-full opacity-[0.07]"
-      xmlns="http://www.w3.org/2000/svg"
-      preserveAspectRatio="xMidYMid slice"
-      viewBox="0 0 1200 800"
-      aria-hidden="true"
-    >
-      {/* Geometric gold grid lines */}
-      <defs>
-        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#D4A843" />
-          <stop offset="100%" stopColor="#FFD166" />
-        </linearGradient>
-      </defs>
-
-      {/* Diagonal grid pattern */}
-      <line x1="0" y1="0" x2="400" y2="800" stroke="url(#goldGrad)" strokeWidth="1" />
-      <line x1="200" y1="0" x2="600" y2="800" stroke="url(#goldGrad)" strokeWidth="1" />
-      <line x1="400" y1="0" x2="800" y2="800" stroke="url(#goldGrad)" strokeWidth="1" />
-      <line x1="600" y1="0" x2="1000" y2="800" stroke="url(#goldGrad)" strokeWidth="1" />
-      <line x1="800" y1="0" x2="1200" y2="800" stroke="url(#goldGrad)" strokeWidth="1" />
-      <line x1="1000" y1="0" x2="1200" y2="400" stroke="url(#goldGrad)" strokeWidth="1" />
-
-      <line x1="400" y1="0" x2="0" y2="800" stroke="url(#goldGrad)" strokeWidth="1" />
-      <line x1="600" y1="0" x2="200" y2="800" stroke="url(#goldGrad)" strokeWidth="1" />
-      <line x1="800" y1="0" x2="400" y2="800" stroke="url(#goldGrad)" strokeWidth="1" />
-      <line x1="1000" y1="0" x2="600" y2="800" stroke="url(#goldGrad)" strokeWidth="1" />
-      <line x1="1200" y1="0" x2="800" y2="800" stroke="url(#goldGrad)" strokeWidth="1" />
-
-      {/* Abstract house silhouette */}
-      <g transform="translate(750, 200)" stroke="url(#goldGrad)" strokeWidth="1.5" fill="none">
-        {/* Roof */}
-        <polyline points="0,120 100,40 200,120" />
-        {/* Chimney */}
-        <line x1="155" y1="68" x2="155" y2="40" />
-        <line x1="155" y1="40" x2="175" y2="40" />
-        <line x1="175" y1="40" x2="175" y2="85" />
-        {/* Body */}
-        <rect x="20" y="120" width="160" height="120" />
-        {/* Door */}
-        <rect x="80" y="170" width="40" height="70" />
-        <circle cx="112" cy="208" r="3" />
-        {/* Windows */}
-        <rect x="35" y="140" width="35" height="30" />
-        <line x1="52.5" y1="140" x2="52.5" y2="170" />
-        <line x1="35" y1="155" x2="70" y2="155" />
-        <rect x="130" y="140" width="35" height="30" />
-        <line x1="147.5" y1="140" x2="147.5" y2="170" />
-        <line x1="130" y1="155" x2="165" y2="155" />
-      </g>
-
-      {/* Architectural detail: columns */}
-      <g transform="translate(100, 350)" stroke="url(#goldGrad)" strokeWidth="1" fill="none">
-        <rect x="0" y="0" width="30" height="150" />
-        <rect x="-5" y="-8" width="40" height="8" rx="2" />
-        <rect x="-5" y="150" width="40" height="8" rx="2" />
-        <rect x="70" y="0" width="30" height="150" />
-        <rect x="65" y="-8" width="40" height="8" rx="2" />
-        <rect x="65" y="150" width="40" height="8" rx="2" />
-        <line x1="-5" y1="-16" x2="105" y2="-16" />
-        <line x1="-5" y1="-20" x2="105" y2="-20" />
-      </g>
-
-      {/* Diamond accents */}
-      <g stroke="url(#goldGrad)" strokeWidth="1" fill="none">
-        <polygon points="1050,100 1070,120 1050,140 1030,120" />
-        <polygon points="150,150 165,165 150,180 135,165" />
-        <polygon points="950,500 965,515 950,530 935,515" />
-        <polygon points="300,600 315,615 300,630 285,615" />
-      </g>
-
-      {/* Circular ornaments */}
-      <circle cx="500" cy="100" r="40" stroke="url(#goldGrad)" strokeWidth="1" fill="none" />
-      <circle cx="500" cy="100" r="30" stroke="url(#goldGrad)" strokeWidth="0.5" fill="none" />
-      <circle cx="1100" cy="650" r="50" stroke="url(#goldGrad)" strokeWidth="1" fill="none" />
-      <circle cx="1100" cy="650" r="35" stroke="url(#goldGrad)" strokeWidth="0.5" fill="none" />
-    </svg>
-  )
+interface BuildingConfig {
+  label: string
+  x: number
+  z: number
+  w: number
+  h: number
+  d: number
+  hasRoof?: boolean
 }
 
-function ScrollIndicator() {
-  return (
-    <motion.div
-      className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 2, duration: 1 }}
-    >
-      <span className="text-sand-300 text-xs tracking-[0.2em] uppercase">Scroll</span>
-      <motion.div
-        className="w-[1px] h-8 bg-gradient-to-b from-gold-400 to-transparent"
-        animate={{ scaleY: [1, 0.5, 1] }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-      />
-    </motion.div>
-  )
-}
+const BUILDINGS: BuildingConfig[] = [
+  // Back row (tallest)
+  { label: 'Cobertura Premium', x: -4, z: -3, w: 1.5, h: 6, d: 1.5 },
+  { label: 'Apartamento', x: -1.5, z: -3.5, w: 1.2, h: 4.5, d: 1.2 },
+  { label: 'Penthouse', x: 1.5, z: -3, w: 1.8, h: 7, d: 1.4 },
+  { label: 'Residencial', x: 4, z: -3.5, w: 1.3, h: 5, d: 1.3 },
+  // Middle row
+  { label: 'Flat Executivo', x: -5.5, z: -0.5, w: 1, h: 3.5, d: 1 },
+  { label: 'Studio Moderno', x: -2.5, z: 0, w: 0.9, h: 3, d: 0.9 },
+  { label: 'Cobertura Duplex', x: 0, z: -0.5, w: 2, h: 5.5, d: 1.5 },
+  { label: 'Loft', x: 2.5, z: 0, w: 1.1, h: 3, d: 1 },
+  { label: 'Apartamento', x: 5.5, z: -0.5, w: 1, h: 4, d: 1 },
+  // Front row (houses with roofs)
+  { label: 'Casa de Luxo', x: -3.5, z: 2, w: 1.6, h: 1.2, d: 1.6, hasRoof: true },
+  { label: 'Mansão', x: 0, z: 2.5, w: 2, h: 1.5, d: 2, hasRoof: true },
+  { label: 'Sobrado', x: 3.5, z: 2, w: 1.4, h: 1.8, d: 1.4, hasRoof: true },
+]
+
+const GOLD = 0xd4a843
+const GOLD_LIGHT = 0xe8c96a
+const GOLD_DIM = 0x8a7030
+const PARTICLE_COUNT = 150
+const FOLLOWER_COUNT = 25
+const ENTRY_DURATION = 2000
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -111,7 +46,7 @@ const fadeUp = {
     opacity: 1,
     y: 0,
     transition: {
-      delay: 0.3 + i * 0.2,
+      delay: 1.5 + i * 0.2,
       duration: 0.8,
       ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
     },
@@ -119,99 +54,595 @@ const fadeUp = {
 }
 
 export default function Hero() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const tooltipRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    let mounted = true
+    let animFrameId: number
+    const cleanupFns: (() => void)[] = []
+
+    ;(async () => {
+      const THREE = await import('three')
+      if (!mounted || !containerRef.current) return
+
+      const container = containerRef.current
+      let width = container.clientWidth
+      let height = container.clientHeight
+
+      // ── Scene ──
+      const scene = new THREE.Scene()
+      scene.fog = new THREE.FogExp2(0x1a1a1a, 0.035)
+
+      const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100)
+      camera.position.set(0, 7, 12)
+      camera.lookAt(0, 1, 0)
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true })
+      renderer.setSize(width, height)
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+      renderer.setClearColor(0x1a1a1a)
+      container.appendChild(renderer.domElement)
+
+      const world = new THREE.Group()
+      scene.add(world)
+
+      const goldColor = new THREE.Color(GOLD)
+      const goldLightColor = new THREE.Color(GOLD_LIGHT)
+
+      // ── Ground glow ──
+      const glowCanvas = document.createElement('canvas')
+      glowCanvas.width = 256
+      glowCanvas.height = 256
+      const ctx = glowCanvas.getContext('2d')!
+      const grad = ctx.createRadialGradient(128, 128, 0, 128, 128, 128)
+      grad.addColorStop(0, 'rgba(212, 168, 67, 0.12)')
+      grad.addColorStop(0.5, 'rgba(212, 168, 67, 0.04)')
+      grad.addColorStop(1, 'rgba(212, 168, 67, 0)')
+      ctx.fillStyle = grad
+      ctx.fillRect(0, 0, 256, 256)
+      const glowTex = new THREE.CanvasTexture(glowCanvas)
+      const glowPlane = new THREE.Mesh(
+        new THREE.PlaneGeometry(24, 24),
+        new THREE.MeshBasicMaterial({
+          map: glowTex,
+          transparent: true,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+        })
+      )
+      glowPlane.rotation.x = -Math.PI / 2
+      glowPlane.position.y = 0.02
+      world.add(glowPlane)
+
+      // ── Grid ──
+      const grid = new THREE.GridHelper(
+        20, 20,
+        new THREE.Color(GOLD_DIM),
+        new THREE.Color(0x2d2d2d)
+      )
+      const gridMats = Array.isArray(grid.material) ? grid.material : [grid.material]
+      gridMats.forEach(m => {
+        m.opacity = 0.12
+        m.transparent = true
+      })
+      world.add(grid)
+
+      // ── Buildings ──
+      interface BuildingObj {
+        group: Group
+        config: BuildingConfig
+        lines: LineSegments[]
+        targetY: number
+        origColors: Color[]
+        origOpacities: number[]
+      }
+
+      const buildings: BuildingObj[] = []
+
+      BUILDINGS.forEach((cfg, idx) => {
+        const group = new THREE.Group()
+        const lines: LineSegments[] = []
+        const origColors: Color[] = []
+        const origOpacities: number[] = []
+
+        // Main body wireframe
+        const bodyGeo = new THREE.BoxGeometry(cfg.w, cfg.h, cfg.d)
+        const bodyEdges = new THREE.EdgesGeometry(bodyGeo)
+        const bodyMat = new THREE.LineBasicMaterial({
+          color: goldColor.clone(),
+          transparent: true,
+          opacity: 0.65,
+        })
+        const bodyLine = new THREE.LineSegments(bodyEdges, bodyMat)
+        bodyLine.position.y = cfg.h / 2
+        group.add(bodyLine)
+        lines.push(bodyLine)
+        origColors.push(goldColor.clone())
+        origOpacities.push(0.65)
+        bodyGeo.dispose()
+
+        // Roof for houses
+        if (cfg.hasRoof) {
+          const roofH = cfg.h * 0.6
+          const roofGeo = new THREE.ConeGeometry(
+            Math.max(cfg.w, cfg.d) * 0.78,
+            roofH,
+            4
+          )
+          const roofEdges = new THREE.EdgesGeometry(roofGeo)
+          const roofMat = new THREE.LineBasicMaterial({
+            color: goldColor.clone(),
+            transparent: true,
+            opacity: 0.65,
+          })
+          const roofLine = new THREE.LineSegments(roofEdges, roofMat)
+          roofLine.position.y = cfg.h + roofH / 2
+          roofLine.rotation.y = Math.PI / 4
+          group.add(roofLine)
+          lines.push(roofLine)
+          origColors.push(goldColor.clone())
+          origOpacities.push(0.65)
+          roofGeo.dispose()
+        }
+
+        // Floor dividers for taller buildings
+        if (cfg.h > 2) {
+          const floorCount = Math.floor(cfg.h / 0.8)
+          for (let f = 1; f < floorCount; f++) {
+            const y = f * 0.8
+            const halfW = cfg.w * 0.45
+            const halfD = cfg.d / 2 + 0.005
+            const pts = [
+              new THREE.Vector3(-halfW, y, halfD),
+              new THREE.Vector3(halfW, y, halfD),
+            ]
+            const floorGeo = new THREE.BufferGeometry().setFromPoints(pts)
+            const floorMat = new THREE.LineBasicMaterial({
+              color: goldColor.clone(),
+              transparent: true,
+              opacity: 0.3,
+            })
+            const floorLine = new THREE.LineSegments(floorGeo, floorMat)
+            group.add(floorLine)
+            lines.push(floorLine)
+            origColors.push(goldColor.clone())
+            origOpacities.push(0.3)
+          }
+        }
+
+        // Window details for medium buildings (2-4 height)
+        if (cfg.h >= 2 && cfg.h <= 4) {
+          const windowRows = Math.floor(cfg.h / 1.2)
+          for (let r = 0; r < windowRows; r++) {
+            const wy = 0.6 + r * 1.2
+            const windowSize = 0.2
+            const spacing = cfg.w / 3
+            for (let c = -1; c <= 1; c += 2) {
+              const wx = c * spacing * 0.5
+              const wz = cfg.d / 2 + 0.006
+              const winPts = [
+                new THREE.Vector3(wx - windowSize, wy - windowSize, wz),
+                new THREE.Vector3(wx + windowSize, wy - windowSize, wz),
+                new THREE.Vector3(wx + windowSize, wy - windowSize, wz),
+                new THREE.Vector3(wx + windowSize, wy + windowSize, wz),
+                new THREE.Vector3(wx + windowSize, wy + windowSize, wz),
+                new THREE.Vector3(wx - windowSize, wy + windowSize, wz),
+                new THREE.Vector3(wx - windowSize, wy + windowSize, wz),
+                new THREE.Vector3(wx - windowSize, wy - windowSize, wz),
+              ]
+              const winGeo = new THREE.BufferGeometry().setFromPoints(winPts)
+              const winMat = new THREE.LineBasicMaterial({
+                color: goldColor.clone(),
+                transparent: true,
+                opacity: 0.25,
+              })
+              const winLine = new THREE.LineSegments(winGeo, winMat)
+              group.add(winLine)
+              lines.push(winLine)
+              origColors.push(goldColor.clone())
+              origOpacities.push(0.25)
+            }
+          }
+        }
+
+        // Invisible hitbox for raycasting
+        const totalH = cfg.h + (cfg.hasRoof ? cfg.h * 0.6 : 0)
+        const hitGeo = new THREE.BoxGeometry(cfg.w + 0.3, totalH + 0.3, cfg.d + 0.3)
+        const hitMat = new THREE.MeshBasicMaterial({ visible: false })
+        const hitbox = new THREE.Mesh(hitGeo, hitMat)
+        hitbox.position.y = totalH / 2
+        hitbox.userData = { buildingIdx: idx }
+        group.add(hitbox)
+
+        group.position.set(cfg.x, -12, cfg.z)
+        world.add(group)
+
+        buildings.push({
+          group,
+          config: cfg,
+          lines,
+          targetY: 0,
+          origColors,
+          origOpacities,
+        })
+      })
+
+      // ── Ambient Particles ──
+      const pPositions = new Float32Array(PARTICLE_COUNT * 3)
+      const pSpeeds = new Float32Array(PARTICLE_COUNT)
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        pPositions[i * 3] = (Math.random() - 0.5) * 22
+        pPositions[i * 3 + 1] = Math.random() * 12
+        pPositions[i * 3 + 2] = (Math.random() - 0.5) * 16
+        pSpeeds[i] = 0.003 + Math.random() * 0.008
+      }
+      const pGeo = new THREE.BufferGeometry()
+      pGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3))
+      const pMat = new THREE.PointsMaterial({
+        color: GOLD_LIGHT,
+        size: 0.06,
+        transparent: true,
+        opacity: 0.5,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      })
+      world.add(new THREE.Points(pGeo, pMat))
+
+      // ── Cursor Follower Particles ──
+      const fPositions = new Float32Array(FOLLOWER_COUNT * 3)
+      const fOffsets = new Float32Array(FOLLOWER_COUNT * 3)
+      for (let i = 0; i < FOLLOWER_COUNT; i++) {
+        fPositions[i * 3] = 0
+        fPositions[i * 3 + 1] = 5
+        fPositions[i * 3 + 2] = 0
+        fOffsets[i * 3] = (Math.random() - 0.5) * 2
+        fOffsets[i * 3 + 1] = (Math.random() - 0.5) * 2
+        fOffsets[i * 3 + 2] = (Math.random() - 0.5) * 2
+      }
+      const fGeo = new THREE.BufferGeometry()
+      fGeo.setAttribute('position', new THREE.BufferAttribute(fPositions, 3))
+      const fMat = new THREE.PointsMaterial({
+        color: GOLD_LIGHT,
+        size: 0.04,
+        transparent: true,
+        opacity: 0.7,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      })
+      scene.add(new THREE.Points(fGeo, fMat))
+
+      // ── Interaction State ──
+      const mouse = { x: 0, y: 0 }
+      const targetRot = { x: 0, y: 0 }
+      const raycaster = new THREE.Raycaster()
+      const mouseVec = new THREE.Vector2()
+      const mousePlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -5)
+      const mouseWorldPos = new THREE.Vector3(0, 5, 0)
+      let hoveredIdx = -1
+      let isZooming = false
+      const originalCamPos = camera.position.clone()
+      const originalLookAt = new THREE.Vector3(0, 1, 0)
+
+      // Collect all hitboxes once
+      const hitboxes = buildings.map(
+        b => b.group.children.find(c => (c as Mesh).isMesh) as Mesh
+      )
+
+      const resetHover = () => {
+        if (hoveredIdx >= 0) {
+          const prev = buildings[hoveredIdx]
+          prev.lines.forEach((l, li) => {
+            const mat = l.material as LBM
+            mat.color.copy(prev.origColors[li])
+            mat.opacity = prev.origOpacities[li]
+          })
+          prev.group.scale.setScalar(1)
+          hoveredIdx = -1
+        }
+        if (tooltipRef.current) tooltipRef.current.style.opacity = '0'
+        container.style.cursor = 'default'
+      }
+
+      const onMouseMove = (e: MouseEvent) => {
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1
+
+        // Parallax target
+        targetRot.y = mouse.x * 0.12
+        targetRot.x = mouse.y * 0.06
+
+        // Mouse world position for follower particles
+        mouseVec.set(mouse.x, mouse.y)
+        raycaster.setFromCamera(mouseVec, camera)
+        raycaster.ray.intersectPlane(mousePlane, mouseWorldPos)
+
+        if (isZooming) return
+
+        // Raycast for building hover
+        const intersects = raycaster.intersectObjects(hitboxes)
+
+        resetHover()
+
+        if (intersects.length > 0) {
+          const idx = intersects[0].object.userData.buildingIdx
+          if (idx !== undefined && idx >= 0) {
+            hoveredIdx = idx
+            const b = buildings[idx]
+            container.style.cursor = 'pointer'
+
+            // Highlight
+            b.lines.forEach(l => {
+              const mat = l.material as LBM
+              mat.color.set(goldLightColor)
+              mat.opacity = Math.min(mat.opacity + 0.35, 1)
+            })
+            b.group.scale.setScalar(1.08)
+
+            // Tooltip position
+            if (tooltipRef.current) {
+              const wp = new THREE.Vector3()
+              b.group.getWorldPosition(wp)
+              const totalH = b.config.h + (b.config.hasRoof ? b.config.h * 0.6 : 0)
+              wp.y += totalH + 0.5
+              wp.project(camera)
+              const tx = (wp.x * 0.5 + 0.5) * width
+              const ty = (-wp.y * 0.5 + 0.5) * height
+              tooltipRef.current.style.left = `${tx}px`
+              tooltipRef.current.style.top = `${ty}px`
+              tooltipRef.current.style.opacity = '1'
+              tooltipRef.current.textContent = b.config.label
+            }
+          }
+        }
+      }
+
+      const onTouchMove = (e: TouchEvent) => {
+        const touch = e.touches[0]
+        mouse.x = (touch.clientX / window.innerWidth) * 2 - 1
+        mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1
+        targetRot.y = mouse.x * 0.12
+        targetRot.x = mouse.y * 0.06
+      }
+
+      const onClick = () => {
+        if (hoveredIdx < 0 || isZooming) return
+        isZooming = true
+        const b = buildings[hoveredIdx]
+        const target = new THREE.Vector3()
+        b.group.getWorldPosition(target)
+        const zoomTo = target.clone().add(new THREE.Vector3(2, 3, 4))
+        const startPos = camera.position.clone()
+        let t = 0
+
+        const zoomIn = () => {
+          t += 0.025
+          if (t >= 1) {
+            setTimeout(() => {
+              let t2 = 0
+              const zoomOut = () => {
+                t2 += 0.02
+                if (t2 >= 1) {
+                  camera.position.copy(originalCamPos)
+                  camera.lookAt(originalLookAt)
+                  isZooming = false
+                  return
+                }
+                const e = 1 - Math.pow(1 - t2, 3)
+                camera.position.lerpVectors(zoomTo, originalCamPos, e)
+                const look = new THREE.Vector3().lerpVectors(target, originalLookAt, e)
+                look.y = THREE.MathUtils.lerp(target.y + 1, originalLookAt.y, e)
+                camera.lookAt(look)
+                requestAnimationFrame(zoomOut)
+              }
+              zoomOut()
+            }, 400)
+            return
+          }
+          const e = 1 - Math.pow(1 - t, 3)
+          camera.position.lerpVectors(startPos, zoomTo, e)
+          const look = new THREE.Vector3().lerpVectors(originalLookAt, target, e)
+          look.y = THREE.MathUtils.lerp(originalLookAt.y, target.y + 1, e)
+          camera.lookAt(look)
+          requestAnimationFrame(zoomIn)
+        }
+        zoomIn()
+      }
+
+      container.addEventListener('mousemove', onMouseMove)
+      container.addEventListener('touchmove', onTouchMove, { passive: true })
+      container.addEventListener('click', onClick)
+
+      // ── Animation Loop ──
+      const startTime = performance.now()
+      const easeOut = (t: number) => 1 - Math.pow(1 - t, 3)
+
+      const animate = () => {
+        if (!mounted) return
+        animFrameId = requestAnimationFrame(animate)
+
+        const now = performance.now()
+        const elapsed = now - startTime
+
+        // Entry: buildings rise from below
+        buildings.forEach((b, i) => {
+          const delay = i * 120
+          const t = Math.max(0, Math.min(1, (elapsed - delay) / ENTRY_DURATION))
+          b.group.position.y = THREE.MathUtils.lerp(-12, b.targetY, easeOut(t))
+        })
+
+        // Parallax (smooth lerp toward target)
+        world.rotation.y += (targetRot.y - world.rotation.y) * 0.03
+        world.rotation.x += (targetRot.x - world.rotation.x) * 0.03
+
+        // Gentle auto-rotation
+        if (!isZooming) {
+          targetRot.y += 0.00015
+        }
+
+        // Ambient particles float upward
+        const pos = pGeo.attributes.position.array as Float32Array
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+          pos[i * 3 + 1] += pSpeeds[i]
+          if (pos[i * 3 + 1] > 12) pos[i * 3 + 1] = 0
+          pos[i * 3] += Math.sin(now * 0.0005 + i * 0.5) * 0.002
+        }
+        pGeo.attributes.position.needsUpdate = true
+
+        // Follower particles drift toward cursor
+        const fp = fGeo.attributes.position.array as Float32Array
+        for (let i = 0; i < FOLLOWER_COUNT; i++) {
+          const speed = 0.01 + i * 0.002
+          fp[i * 3] += (mouseWorldPos.x + fOffsets[i * 3] - fp[i * 3]) * speed
+          fp[i * 3 + 1] += (mouseWorldPos.y + fOffsets[i * 3 + 1] - fp[i * 3 + 1]) * speed
+          fp[i * 3 + 2] += (mouseWorldPos.z + fOffsets[i * 3 + 2] - fp[i * 3 + 2]) * speed
+          // Oscillation
+          fOffsets[i * 3] += Math.sin(now * 0.001 + i) * 0.003
+          fOffsets[i * 3 + 1] += Math.cos(now * 0.0012 + i * 2) * 0.003
+        }
+        fGeo.attributes.position.needsUpdate = true
+
+        renderer.render(scene, camera)
+      }
+
+      animate()
+
+      // ── Resize ──
+      const onResize = () => {
+        if (!containerRef.current) return
+        width = containerRef.current.clientWidth
+        height = containerRef.current.clientHeight
+        camera.aspect = width / height
+        camera.updateProjectionMatrix()
+        renderer.setSize(width, height)
+      }
+      window.addEventListener('resize', onResize)
+
+      // ── Cleanup ──
+      cleanupFns.push(() => {
+        container.removeEventListener('mousemove', onMouseMove)
+        container.removeEventListener('touchmove', onTouchMove)
+        container.removeEventListener('click', onClick)
+        window.removeEventListener('resize', onResize)
+        renderer.dispose()
+        if (container.contains(renderer.domElement)) {
+          container.removeChild(renderer.domElement)
+        }
+      })
+    })()
+
+    return () => {
+      mounted = false
+      if (animFrameId) cancelAnimationFrame(animFrameId)
+      cleanupFns.forEach(fn => fn())
+    }
+  }, [])
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-charcoal-900">
-      {/* Background gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-charcoal-900 via-charcoal-800/90 to-charcoal-900" />
+    <section
+      className="relative h-[500px] md:h-[600px] lg:h-[650px] overflow-hidden"
+      style={{ background: '#1a1a1a' }}
+    >
+      {/* Three.js canvas */}
+      <div ref={containerRef} className="absolute inset-0" />
 
-      {/* Radial glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,168,67,0.08)_0%,transparent_70%)]" />
+      {/* Building tooltip */}
+      <div
+        ref={tooltipRef}
+        className="pointer-events-none absolute z-20 px-3 py-1.5 rounded text-sm whitespace-nowrap backdrop-blur-sm"
+        style={{
+          opacity: 0,
+          transition: 'opacity 0.2s ease',
+          transform: 'translate(-50%, -100%) translateY(-8px)',
+          background: 'rgba(45, 45, 45, 0.9)',
+          border: '1px solid rgba(212, 168, 67, 0.3)',
+          color: '#d4a843',
+        }}
+      />
 
-      {/* Decorative SVG pattern */}
-      <LuxuryPattern />
+      {/* Gradient overlays for text readability */}
+      <div
+        className="absolute inset-0 z-[5] pointer-events-none"
+        style={{ background: 'linear-gradient(to top, #1a1a1a 0%, transparent 40%)' }}
+      />
+      <div
+        className="absolute inset-0 z-[5] pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at center, rgba(26,26,26,0.4) 0%, transparent 70%)',
+        }}
+      />
 
-      {/* Content */}
-      <div className="relative z-10 max-w-5xl mx-auto px-5 md:px-10 text-center">
-        {/* Gold accent line */}
-        <motion.div
-          className="mx-auto w-16 h-[2px] rounded-full mb-8"
-          style={{ background: 'linear-gradient(90deg, #D4A843, #FFD166)' }}
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-        />
+      {/* Content overlay */}
+      <div className="relative z-10 h-full flex items-center justify-center px-5 md:px-10 pointer-events-none">
+        <div className="max-w-5xl mx-auto text-center">
+          {/* Animated gold divider */}
+          <motion.div
+            className="gold-divider mx-auto mb-6"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 1.2, delay: 1.5, ease: [0.22, 1, 0.36, 1] }}
+          />
 
-        {/* Headline */}
-        <motion.h1
-          className="font-heading text-4xl md:text-6xl lg:text-7xl text-white leading-tight tracking-tight"
-          custom={0}
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-        >
-          Encontre o im&oacute;vel dos seus
-          <span className="block mt-2 bg-gradient-to-r from-gold-300 to-gold-500 bg-clip-text text-transparent">
-            sonhos na Bahia
-          </span>
-        </motion.h1>
-
-        {/* Subtitle */}
-        <motion.p
-          className="mt-6 text-sand-200 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed"
-          custom={1}
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-        >
-          Compra, venda e aluguel com atendimento personalizado em Salvador,
-          Feira de Santana e Alagoinhas
-        </motion.p>
-
-        {/* CTA Buttons */}
-        <motion.div
-          className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
-          custom={2}
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-        >
-          <a
-            href={WHATSAPP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-whatsapp"
+          <motion.h1
+            className="font-heading text-4xl md:text-5xl lg:text-6xl text-white"
+            custom={0}
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
           >
-            <svg
-              className="w-5 h-5"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-            </svg>
-            Falar no WhatsApp
-          </a>
-          <Link
-            href="/imoveis"
-            className="btn-outline !border-white !text-white hover:!bg-white hover:!text-charcoal-900"
+            Nossos Im&oacute;veis
+          </motion.h1>
+
+          <motion.p
+            className="mt-4 text-lg max-w-xl mx-auto"
+            style={{ color: '#c4b89a' }}
+            custom={1}
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
           >
-            Ver Im&oacute;veis
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
+            Encontre o im&oacute;vel ideal em Salvador, Feira de Santana e Alagoinhas
+          </motion.p>
+
+          <motion.div
+            className="mt-8"
+            custom={2}
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+          >
+            <Link
+              href="/imoveis"
+              className="pointer-events-auto inline-flex items-center gap-2 px-8 py-4 font-medium rounded-lg border-2 transition-all duration-300"
+              style={{ borderColor: '#d4a843', color: '#d4a843' }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = '#d4a843'
+                e.currentTarget.style.color = '#1a1a1a'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.color = '#d4a843'
+              }}
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </Link>
-        </motion.div>
+              Explorar Im&oacute;veis
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                />
+              </svg>
+            </Link>
+          </motion.div>
+        </div>
       </div>
 
-      {/* Scroll indicator */}
-      <ScrollIndicator />
     </section>
   )
 }
