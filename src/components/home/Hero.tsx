@@ -589,15 +589,41 @@ export default function Hero() {
             />
           </motion.div>
 
-          {/* CRECI */}
-          <motion.p
-            className="text-[11px] uppercase tracking-[0.25em] font-medium text-white/70 mb-5"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 1.35 }}
+          {/* CRECI Badge */}
+          <motion.div
+            className="flex justify-center mb-6"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 1.35, ease: [0.22, 1, 0.36, 1] }}
           >
-            CRECI-BA 022-670
-          </motion.p>
+            <div
+              className="relative inline-flex items-center gap-3 px-6 py-2.5 rounded-full backdrop-blur-md overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(46,158,166,0.15) 0%, rgba(76,184,191,0.08) 100%)',
+                border: '1px solid rgba(46,158,166,0.35)',
+                boxShadow: '0 0 20px rgba(46,158,166,0.15), inset 0 1px 0 rgba(255,255,255,0.05)',
+              }}
+            >
+              {/* Shimmer effect */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 45%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 55%, transparent 100%)',
+                  backgroundSize: '200% 100%',
+                  animation: 'shimmer 4s ease-in-out infinite',
+                }}
+              />
+              <svg className="w-4 h-4 text-[#4CB8BF]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+              </svg>
+              <div className="flex flex-col items-start leading-tight">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-medium">Corretor Credenciado</span>
+                <span className="text-sm font-bold tracking-wider text-white">CRECI-BA 022-670</span>
+              </div>
+              <div className="w-px h-5 bg-white/10" />
+              <span className="text-[10px] uppercase tracking-[0.15em] text-[#4CB8BF] font-semibold">Verificado</span>
+            </div>
+          </motion.div>
 
           {/* Animated gold divider */}
           <motion.div
