@@ -1,171 +1,180 @@
 const WHATSAPP_NUMBER = '5571997106376'
 
+// Pre-encoded UTF-8 emoji bytes - bypasses JS string processing entirely
 const E = {
-  house: String.fromCodePoint(0x1F3E0),
-  pin: String.fromCodePoint(0x1F4CC),
-  clipboard: String.fromCodePoint(0x1F4CB),
-  pray: String.fromCodePoint(0x1F64F),
-  wave: String.fromCodePoint(0x1F44B),
-  homeGarden: String.fromCodePoint(0x1F3E1),
-  smile: String.fromCodePoint(0x1F60A),
-  search: String.fromCodePoint(0x1F50D),
-  briefcase: String.fromCodePoint(0x1F4BC),
-  bank: String.fromCodePoint(0x1F3E6),
-  globe: String.fromCodePoint(0x1F310),
-  page: String.fromCodePoint(0x1F4C4),
-  newspaper: String.fromCodePoint(0x1F4F0),
-  phone: String.fromCodePoint(0x1F4DE),
-  heart: String.fromCodePoint(0x2764, 0xFE0F),
-  chart: String.fromCodePoint(0x1F4CA),
-  book: String.fromCodePoint(0x1F4D6),
-  tag: String.fromCodePoint(0x1F3F7, 0xFE0F),
+  house: '%F0%9F%8F%A0',       // 🏠
+  pin: '%F0%9F%93%8C',         // 📌
+  clipboard: '%F0%9F%93%8B',   // 📋
+  pray: '%F0%9F%99%8F',        // 🙏
+  wave: '%F0%9F%91%8B',        // 👋
+  homeGarden: '%F0%9F%8F%A1',  // 🏡
+  smile: '%F0%9F%98%8A',       // 😊
+  search: '%F0%9F%94%8D',      // 🔍
+  briefcase: '%F0%9F%92%BC',   // 💼
+  bank: '%F0%9F%8F%A6',        // 🏦
+  globe: '%F0%9F%8C%90',       // 🌐
+  page: '%F0%9F%93%84',        // 📄
+  newspaper: '%F0%9F%93%B0',   // 📰
+  phone: '%F0%9F%93%9E',       // 📞
+  heart: '%E2%9D%A4%EF%B8%8F', // ❤️
+  chart: '%F0%9F%93%8A',       // 📊
+  book: '%F0%9F%93%96',        // 📖
+  tag: '%F0%9F%8F%B7%EF%B8%8F', // 🏷️
 }
 
-export function getWhatsAppUrl(path: string, extra?: string) {
-  const msg = getMessageForPath(path, extra)
-  return 'https://api.whatsapp.com/send?phone=' + WHATSAPP_NUMBER + '&text=' + encodeURIComponent(msg)
+const NL = '%0A'
+const SP = '%20'
+
+function t(s: string): string {
+  return encodeURIComponent(s)
 }
 
-export function getWhatsAppUrlWithMsg(msg: string) {
-  return 'https://api.whatsapp.com/send?phone=' + WHATSAPP_NUMBER + '&text=' + encodeURIComponent(msg)
+function buildUrl(text: string): string {
+  return 'https://api.whatsapp.com/send?phone=' + WHATSAPP_NUMBER + '&text=' + text
 }
 
 export function openWhatsApp(path: string, extra?: string) {
-  const msg = getMessageForPath(path, extra)
-  const url = 'https://api.whatsapp.com/send?phone=' + WHATSAPP_NUMBER + '&text=' + encodeURIComponent(msg)
-  window.open(url, '_blank')
+  const text = getEncodedMessage(path, extra)
+  window.open(buildUrl(text), '_blank')
 }
 
 export function openWhatsAppWithMsg(msg: string) {
-  const url = 'https://api.whatsapp.com/send?phone=' + WHATSAPP_NUMBER + '&text=' + encodeURIComponent(msg)
-  window.open(url, '_blank')
+  window.open(buildUrl(encodeURIComponent(msg)), '_blank')
 }
 
-function getMessageForPath(path: string, extra?: string): string {
+export function openWhatsAppWithService(title: string) {
+  const text =
+    E.briefcase + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+    NL + NL +
+    E.tag + SP + t('*Servico de interesse:*') +
+    NL + t(title) +
+    NL + NL +
+    E.clipboard + SP + t('Gostaria de saber mais detalhes sobre este servico.') +
+    NL + NL +
+    t('Aguardo retorno! ') + E.pray
+  window.open(buildUrl(text), '_blank')
+}
+
+export function getWhatsAppUrl(path: string, extra?: string) {
+  const text = getEncodedMessage(path, extra)
+  return buildUrl(text)
+}
+
+export function getWhatsAppUrlWithMsg(msg: string) {
+  return buildUrl(encodeURIComponent(msg))
+}
+
+function getEncodedMessage(path: string, extra?: string): string {
   if (path.startsWith('/imoveis/') && extra) {
-    return [
-      E.house + ' *Ola! Vim pelo site da Jeova Guedes Imoveis*',
-      '',
-      E.pin + ' *Imovel de interesse:*',
-      extra,
-      '',
-      E.clipboard + ' Gostaria de agendar uma visita e saber mais detalhes.',
-      '',
-      'Aguardo retorno! ' + E.pray
-    ].join('\n')
+    return E.house + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      NL + NL +
+      E.pin + SP + t('*Imovel de interesse:*') +
+      NL + t(extra) +
+      NL + NL +
+      E.clipboard + SP + t('Gostaria de agendar uma visita e saber mais detalhes.') +
+      NL + NL +
+      t('Aguardo retorno! ') + E.pray
   }
 
   if (path.startsWith('/blog/') && extra) {
-    return [
-      E.newspaper + ' *Ola! Vim pelo blog da Jeova Guedes Imoveis*',
-      '',
-      E.book + ' *Artigo:* ' + extra,
-      '',
-      'Gostei do conteudo e gostaria de mais informacoes.',
-      '',
-      'Aguardo retorno! ' + E.pray
-    ].join('\n')
+    return E.newspaper + SP + t('*Ola! Vim pelo blog da Jeova Guedes Imoveis*') +
+      NL + NL +
+      E.book + SP + t('*Artigo:* ' + extra) +
+      NL + NL +
+      t('Gostei do conteudo e gostaria de mais informacoes.') +
+      NL + NL +
+      t('Aguardo retorno! ') + E.pray
   }
 
   const messages: Record<string, string> = {
-    '/': [
-      E.wave + ' *Ola! Vim pelo site da Jeova Guedes Imoveis*',
-      '',
-      E.homeGarden + ' Estou interessado(a) em conhecer os imoveis disponiveis.',
-      '',
-      'Pode me ajudar? ' + E.smile
-    ].join('\n'),
+    '/':
+      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      NL + NL +
+      E.homeGarden + SP + t('Estou interessado(a) em conhecer os imoveis disponiveis.') +
+      NL + NL +
+      t('Pode me ajudar? ') + E.smile,
 
-    '/imoveis': [
-      E.wave + ' *Ola! Vim pelo site da Jeova Guedes Imoveis*',
-      '',
-      E.search + ' *Pagina:* Imoveis',
-      '',
-      'Estou buscando um imovel e gostaria de ajuda para encontrar o ideal.',
-      '',
-      'Aguardo retorno! ' + E.pray
-    ].join('\n'),
+    '/imoveis':
+      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      NL + NL +
+      E.search + SP + t('*Pagina:* Imoveis') +
+      NL + NL +
+      t('Estou buscando um imovel e gostaria de ajuda para encontrar o ideal.') +
+      NL + NL +
+      t('Aguardo retorno! ') + E.pray,
 
-    '/servicos': [
-      E.wave + ' *Ola! Vim pelo site da Jeova Guedes Imoveis*',
-      '',
-      E.briefcase + ' *Pagina:* Servicos',
-      '',
-      'Gostaria de saber mais sobre os servicos oferecidos.',
-      '',
-      'Aguardo retorno! ' + E.pray
-    ].join('\n'),
+    '/servicos':
+      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      NL + NL +
+      E.briefcase + SP + t('*Pagina:* Servicos') +
+      NL + NL +
+      t('Gostaria de saber mais sobre os servicos oferecidos.') +
+      NL + NL +
+      t('Aguardo retorno! ') + E.pray,
 
-    '/simulador': [
-      E.wave + ' *Ola! Vim pelo site da Jeova Guedes Imoveis*',
-      '',
-      E.bank + ' *Pagina:* Simulador de Financiamento',
-      '',
-      'Gostaria de tirar duvidas sobre financiamento imobiliario.',
-      '',
-      'Aguardo retorno! ' + E.pray
-    ].join('\n'),
+    '/simulador':
+      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      NL + NL +
+      E.bank + SP + t('*Pagina:* Simulador de Financiamento') +
+      NL + NL +
+      t('Gostaria de tirar duvidas sobre financiamento imobiliario.') +
+      NL + NL +
+      t('Aguardo retorno! ') + E.pray,
 
-    '/portais': [
-      E.wave + ' *Ola! Vim pelo site da Jeova Guedes Imoveis*',
-      '',
-      E.globe + ' *Pagina:* Portais Imobiliarios',
-      '',
-      'Gostaria de saber mais sobre a integracao com os portais.',
-      '',
-      'Aguardo retorno! ' + E.pray
-    ].join('\n'),
+    '/portais':
+      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      NL + NL +
+      E.globe + SP + t('*Pagina:* Portais Imobiliarios') +
+      NL + NL +
+      t('Gostaria de saber mais sobre a integracao com os portais.') +
+      NL + NL +
+      t('Aguardo retorno! ') + E.pray,
 
-    '/sobre': [
-      E.wave + ' *Ola! Vim pelo site da Jeova Guedes Imoveis*',
-      '',
-      E.page + ' *Pagina:* Sobre',
-      '',
-      'Gostei do que vi e gostaria de entrar em contato.',
-      '',
-      'Aguardo retorno! ' + E.pray
-    ].join('\n'),
+    '/sobre':
+      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      NL + NL +
+      E.page + SP + t('*Pagina:* Sobre') +
+      NL + NL +
+      t('Gostei do que vi e gostaria de entrar em contato.') +
+      NL + NL +
+      t('Aguardo retorno! ') + E.pray,
 
-    '/blog': [
-      E.wave + ' *Ola! Vim pelo blog da Jeova Guedes Imoveis*',
-      '',
-      E.newspaper + ' Gostei dos conteudos e gostaria de mais informacoes.',
-      '',
-      'Aguardo retorno! ' + E.pray
-    ].join('\n'),
+    '/blog':
+      E.wave + SP + t('*Ola! Vim pelo blog da Jeova Guedes Imoveis*') +
+      NL + NL +
+      E.newspaper + SP + t('Gostei dos conteudos e gostaria de mais informacoes.') +
+      NL + NL +
+      t('Aguardo retorno! ') + E.pray,
 
-    '/contato': [
-      E.wave + ' *Ola! Vim pelo site da Jeova Guedes Imoveis*',
-      '',
-      E.phone + ' *Pagina:* Contato',
-      '',
-      'Gostaria de falar diretamente com voce.',
-      '',
-      'Aguardo retorno! ' + E.pray
-    ].join('\n'),
+    '/contato':
+      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      NL + NL +
+      E.phone + SP + t('*Pagina:* Contato') +
+      NL + NL +
+      t('Gostaria de falar diretamente com voce.') +
+      NL + NL +
+      t('Aguardo retorno! ') + E.pray,
 
-    '/favoritos': [
-      E.wave + ' *Ola! Vim pelo site da Jeova Guedes Imoveis*',
-      '',
-      E.heart + ' Tenho alguns imoveis favoritados e gostaria de mais informacoes.',
-      '',
-      'Aguardo retorno! ' + E.pray
-    ].join('\n'),
+    '/favoritos':
+      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      NL + NL +
+      E.heart + SP + t('Tenho alguns imoveis favoritados e gostaria de mais informacoes.') +
+      NL + NL +
+      t('Aguardo retorno! ') + E.pray,
 
-    '/comparar': [
-      E.wave + ' *Ola! Vim pelo site da Jeova Guedes Imoveis*',
-      '',
-      E.chart + ' Estou comparando imoveis e gostaria de ajuda na escolha.',
-      '',
-      'Aguardo retorno! ' + E.pray
-    ].join('\n'),
+    '/comparar':
+      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      NL + NL +
+      E.chart + SP + t('Estou comparando imoveis e gostaria de ajuda na escolha.') +
+      NL + NL +
+      t('Aguardo retorno! ') + E.pray,
   }
 
-  return messages[path] || [
-    E.wave + ' *Ola! Vim pelo site da Jeova Guedes Imoveis*',
-    '',
-    'Gostaria de mais informacoes.',
-    '',
-    'Aguardo retorno! ' + E.pray
-  ].join('\n')
+  return messages[path] || (
+    E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+    NL + NL +
+    t('Gostaria de mais informacoes.') +
+    NL + NL +
+    t('Aguardo retorno! ') + E.pray
+  )
 }

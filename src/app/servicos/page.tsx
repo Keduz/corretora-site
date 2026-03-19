@@ -2,24 +2,7 @@
 
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { openWhatsAppWithMsg } from '@/utils/whatsapp'
-
-function buildServiceMsg(title: string) {
-  const briefcase = String.fromCodePoint(0x1F4BC)
-  const tag = String.fromCodePoint(0x1F3F7, 0xFE0F)
-  const clipboard = String.fromCodePoint(0x1F4CB)
-  const pray = String.fromCodePoint(0x1F64F)
-  return [
-    briefcase + ' *Ola! Vim pelo site da Jeova Guedes Imoveis*',
-    '',
-    tag + ' *Servico de interesse:*',
-    title,
-    '',
-    clipboard + ' Gostaria de saber mais detalhes sobre este servico.',
-    '',
-    'Aguardo retorno! ' + pray
-  ].join('\n')
-}
+import { openWhatsAppWithService } from '@/utils/whatsapp'
 
 const services = [
   {
@@ -222,7 +205,7 @@ function ServiceSection({
             <div className="mt-8">
               <button
                 type="button"
-                onClick={() => openWhatsAppWithMsg(buildServiceMsg(service.title))}
+                onClick={() => openWhatsAppWithService(service.title)}
                 className="btn-whatsapp"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
