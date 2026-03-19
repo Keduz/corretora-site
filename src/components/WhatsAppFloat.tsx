@@ -3,7 +3,7 @@
 export default function WhatsAppFloat() {
   return (
     <a
-      href="https://wa.me/5571999999999"
+      href="https://wa.me/5571997106376"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Falar no WhatsApp"

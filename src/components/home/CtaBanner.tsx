@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 
-const WHATSAPP_URL = 'https://wa.me/5571999999999'
+const WHATSAPP_URL = 'https://wa.me/5571997106376'
 
 export default function CtaBanner() {
   const ref = useRef(null)

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { properties, formatPrice, type Property } from '@/data/properties'
+import { portais, type Portal } from '@/data/portais'
 
 const STORAGE_KEY = 'corretora-admin-properties'
 
@@ -36,7 +37,20 @@ const statusColors: Record<string, string> = {
   inativo: 'bg-charcoal-100 text-charcoal-600',
 }
 
-type NavSection = 'dashboard' | 'imoveis' | 'configuracoes'
+const PORTAIS_STORAGE_KEY = 'corretora-admin-portais'
+
+type NavSection = 'dashboard' | 'imoveis' | 'portais' | 'configuracoes'
+
+type PortalConfig = {
+  apiKey: string
+  apiSecret: string
+  feedUrl: string
+  status: 'conectado' | 'desconectado' | 'pendente'
+  autoSync: boolean
+  lastSync: string | null
+}
+
+const PORTAL_CONFIGS_KEY = 'corretora-portal-configs'
 
 /* ─────────── Toast Component (standalone, no framer-motion) ─────────── */
 function AdminToast({
@@ -110,15 +124,11 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
         <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10">
           {/* Logo / Brand */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-olive-500 mb-4">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205l3 1m1.5.5l-1.5-.5M6.75 7.364V3h-3v18m3-13.636l10.5-3.819"
-                />
-              </svg>
-            </div>
+            <img
+              src="/logo.png"
+              alt="Jeova Guedes Imoveis"
+              className="h-20 w-auto mx-auto mb-4"
+            />
             <h1 className="font-heading text-2xl font-bold text-charcoal-800">Painel Administrativo</h1>
             <p className="text-charcoal-400 mt-2 text-sm">Insira sua senha para acessar o painel</p>
           </div>
@@ -201,6 +211,19 @@ function Sidebar({
       ),
     },
     {
+      key: 'portais',
+      label: 'Portais',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.02a4.5 4.5 0 00-6.364-6.364L4.5 8.257m10.5-1.5l2.25 2.25M16.5 12h3m-1.5-3v6"
+          />
+        </svg>
+      ),
+    },
+    {
       key: 'configuracoes',
       label: 'Configuracoes',
       icon: (
@@ -221,17 +244,13 @@ function Sidebar({
       {/* Brand */}
       <div className="p-6 border-b border-sand-200">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-olive-500 flex items-center justify-center shrink-0">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205l3 1m1.5.5l-1.5-.5M6.75 7.364V3h-3v18m3-13.636l10.5-3.819"
-              />
-            </svg>
-          </div>
+          <img
+            src="/logo.png"
+            alt="Jeova Guedes Imoveis"
+            className="h-11 w-auto shrink-0"
+          />
           <div>
-            <h2 className="font-heading font-bold text-charcoal-800 text-sm leading-tight">Corretora</h2>
+            <h2 className="font-heading font-bold text-charcoal-800 text-sm leading-tight">Jeova Guedes</h2>
             <p className="text-xs text-charcoal-400">Administracao</p>
           </div>
         </div>
@@ -316,15 +335,64 @@ function PropertyModal({
     parking: property ? String(property.parking) : '0',
     description: property?.description ?? '',
     features: property?.features.join(', ') ?? '',
+    youtubeVideoId: property?.youtubeVideoId ?? '',
+    lat: property ? String(property.lat) : '-12.9714',
+    lng: property ? String(property.lng) : '-38.5124',
     featured: property?.featured ?? false,
     status: property?.status ?? 'ativo',
   })
+  const mapPickerRef = useRef<HTMLDivElement>(null)
+  const mapPickerInstanceRef = useRef<unknown>(null)
+  const markerRef = useRef<unknown>(null)
   const [imageList, setImageList] = useState<string[]>(property?.images ?? [])
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const set = (field: string, value: string | boolean) =>
     setForm((prev) => ({ ...prev, [field]: value }))
+
+  // Initialize map picker
+  useEffect(() => {
+    if (!mapPickerRef.current || mapPickerInstanceRef.current) return
+    const initPicker = async () => {
+      const L = (await import('leaflet')).default
+      const icon = L.icon({
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+      })
+      const lat = Number(form.lat) || -12.9714
+      const lng = Number(form.lng) || -38.5124
+      const map = L.map(mapPickerRef.current!, { center: [lat, lng], zoom: 13 })
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap',
+        maxZoom: 19,
+      }).addTo(map)
+      const marker = L.marker([lat, lng], { icon, draggable: true }).addTo(map)
+      markerRef.current = marker
+      mapPickerInstanceRef.current = map
+
+      marker.on('dragend', () => {
+        const pos = marker.getLatLng()
+        setForm((prev) => ({ ...prev, lat: pos.lat.toFixed(4), lng: pos.lng.toFixed(4) }))
+      })
+      map.on('click', (e: { latlng: { lat: number; lng: number } }) => {
+        marker.setLatLng(e.latlng)
+        setForm((prev) => ({ ...prev, lat: e.latlng.lat.toFixed(4), lng: e.latlng.lng.toFixed(4) }))
+      })
+    }
+    const timer = setTimeout(initPicker, 100)
+    return () => {
+      clearTimeout(timer)
+      if (mapPickerInstanceRef.current) {
+        (mapPickerInstanceRef.current as { remove: () => void }).remove()
+        mapPickerInstanceRef.current = null
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const processFiles = (files: FileList | File[]) => {
     Array.from(files).forEach((file) => {
@@ -374,6 +442,9 @@ function PropertyModal({
         .map((f) => f.trim())
         .filter(Boolean),
       images: imageList,
+      youtubeVideoId: form.youtubeVideoId || undefined,
+      lat: Number(form.lat) || -12.9714,
+      lng: Number(form.lng) || -38.5124,
       featured: form.featured,
       status: form.status as Property['status'],
     })
@@ -621,6 +692,79 @@ function PropertyModal({
               />
             </div>
 
+            {/* YouTube Video ID */}
+            <div>
+              <label className={labelClass}>Video YouTube (ID do video)</label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                    <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                    </svg>
+                  </div>
+                  <input
+                    value={form.youtubeVideoId}
+                    onChange={(e) => set('youtubeVideoId', e.target.value)}
+                    className={`${inputClass} pl-9`}
+                    placeholder="Ex: dQw4w9WgXcQ"
+                  />
+                </div>
+                {form.youtubeVideoId && (
+                  <a
+                    href={`https://www.youtube.com/watch?v=${form.youtubeVideoId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-2.5 rounded-xl bg-red-50 text-red-600 text-xs font-medium hover:bg-red-100 transition-colors flex items-center gap-1 shrink-0"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                    </svg>
+                    Ver
+                  </a>
+                )}
+              </div>
+              <p className="text-[10px] text-charcoal-300 mt-1">Cole apenas o ID do video (parte apos v= na URL do YouTube)</p>
+            </div>
+
+            {/* Location Map Picker */}
+            <div>
+              <label className={labelClass}>Localizacao no Mapa</label>
+              <p className="text-[10px] text-charcoal-400 mb-2">Clique no mapa ou arraste o marcador para definir a localizacao do imovel</p>
+              <link
+                rel="stylesheet"
+                href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+                integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+                crossOrigin=""
+              />
+              <div
+                ref={mapPickerRef}
+                className="h-56 rounded-xl overflow-hidden border-2 border-sand-200 z-0"
+                style={{ position: 'relative' }}
+              />
+              <div className="grid grid-cols-2 gap-3 mt-2">
+                <div>
+                  <label className={labelClass}>Latitude</label>
+                  <input
+                    type="text"
+                    value={form.lat}
+                    onChange={(e) => set('lat', e.target.value)}
+                    className={inputClass}
+                    placeholder="-12.9714"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Longitude</label>
+                  <input
+                    type="text"
+                    value={form.lng}
+                    onChange={(e) => set('lng', e.target.value)}
+                    className={inputClass}
+                    placeholder="-38.5124"
+                  />
+                </div>
+              </div>
+            </div>
+
             {/* Featured */}
             <label className="flex items-center gap-3 cursor-pointer">
               <input
@@ -720,6 +864,13 @@ export default function AdminPage() {
   const [editingProperty, setEditingProperty] = useState<Property | null>(null)
   const [isCreating, setIsCreating] = useState(false)
   const [deletingProperty, setDeletingProperty] = useState<Property | null>(null)
+  const [portalStatuses, setPortalStatuses] = useState<Record<number, Portal['status']>>({})
+  const [portalSearch, setPortalSearch] = useState('')
+  const [portalFilter, setPortalFilter] = useState<'todos' | 'pago' | 'gratuito'>('todos')
+  const [portalSubTab, setPortalSubTab] = useState<'overview' | 'portais' | 'feed' | 'guia'>('overview')
+  const [portalConfigs, setPortalConfigs] = useState<Record<number, PortalConfig>>({})
+  const [configuringPortal, setConfiguringPortal] = useState<number | null>(null)
+  const [testingConnection, setTestingConnection] = useState<number | null>(null)
 
   useEffect(() => {
     if (sessionStorage.getItem('admin_auth') === 'true') {
@@ -737,9 +888,129 @@ export default function AdminPage() {
     }
   }, [])
 
+  useEffect(() => {
+    const stored = localStorage.getItem(PORTAIS_STORAGE_KEY)
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored)
+        if (parsed && typeof parsed === 'object') setPortalStatuses(parsed)
+      } catch { /* ignore */ }
+    }
+  }, [])
+
+  const togglePortalStatus = useCallback((portalId: number) => {
+    setPortalStatuses((prev) => {
+      const portal = portais.find((p) => p.id === portalId)
+      if (!portal) return prev
+      const currentStatus = prev[portalId] ?? portal.status
+      const newStatus: Portal['status'] = currentStatus === 'ativo' ? 'em-breve' : 'ativo'
+      const updated = { ...prev, [portalId]: newStatus }
+      localStorage.setItem(PORTAIS_STORAGE_KEY, JSON.stringify(updated))
+      return updated
+    })
+  }, [])
+
+  const getPortalStatus = useCallback((portal: Portal): Portal['status'] => {
+    return portalStatuses[portal.id] ?? portal.status
+  }, [portalStatuses])
+
+  // Load portal configs from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem(PORTAL_CONFIGS_KEY)
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored)
+        if (parsed && typeof parsed === 'object') setPortalConfigs(parsed)
+      } catch { /* ignore */ }
+    }
+  }, [])
+
+  const savePortalConfig = useCallback((portalId: number, config: PortalConfig) => {
+    setPortalConfigs((prev) => {
+      const updated = { ...prev, [portalId]: config }
+      localStorage.setItem(PORTAL_CONFIGS_KEY, JSON.stringify(updated))
+      return updated
+    })
+  }, [])
+
+  const generateXML = useCallback(() => {
+    const lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<imoveis>']
+    localProperties.forEach((p) => {
+      lines.push('  <imovel>')
+      lines.push(`    <codigo>${p.slug}</codigo>`)
+      lines.push(`    <titulo>${p.title}</titulo>`)
+      lines.push(`    <tipo>${p.type}</tipo>`)
+      lines.push(`    <transacao>${p.transaction}</transacao>`)
+      lines.push('    <endereco>')
+      lines.push(`      <bairro>${p.neighborhood}</bairro>`)
+      lines.push(`      <cidade>${p.city}</cidade>`)
+      lines.push('      <estado>BA</estado>')
+      lines.push('    </endereco>')
+      lines.push(`    <preco>${p.price}</preco>`)
+      lines.push(`    <area>${p.area}</area>`)
+      lines.push(`    <quartos>${p.bedrooms}</quartos>`)
+      lines.push(`    <banheiros>${p.bathrooms}</banheiros>`)
+      lines.push(`    <vagas>${p.parking}</vagas>`)
+      lines.push(`    <descricao>${p.description}</descricao>`)
+      lines.push('    <fotos>')
+      p.images.forEach((img) => {
+        lines.push(`      <foto>${img}</foto>`)
+      })
+      lines.push('    </fotos>')
+      lines.push('    <coordenadas>')
+      lines.push(`      <latitude>${p.lat}</latitude>`)
+      lines.push(`      <longitude>${p.lng}</longitude>`)
+      lines.push('    </coordenadas>')
+      lines.push('  </imovel>')
+    })
+    lines.push('</imoveis>')
+    return lines.join('\n')
+  }, [localProperties])
+
+  const generateCSV = useCallback(() => {
+    const headers = ['Codigo', 'Titulo', 'Tipo', 'Transacao', 'Preco', 'Area', 'Quartos', 'Banheiros', 'Vagas', 'Bairro', 'Cidade', 'Estado', 'Status', 'Descricao']
+    const rows = localProperties.map((p) => [
+      p.slug,
+      `"${p.title}"`,
+      p.type,
+      p.transaction,
+      p.price,
+      p.area,
+      p.bedrooms,
+      p.bathrooms,
+      p.parking,
+      `"${p.neighborhood}"`,
+      `"${p.city}"`,
+      'BA',
+      p.status,
+      `"${p.description.replace(/"/g, '""')}"`,
+    ].join(','))
+    return [headers.join(','), ...rows].join('\n')
+  }, [localProperties])
+
+  const downloadFile = useCallback((content: string, filename: string, mimeType: string) => {
+    const blob = new Blob([content], { type: mimeType })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }, [])
+
   const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'info') => {
     setToast({ message, type })
   }, [])
+
+  const copyToClipboard = useCallback((text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Copiado para a area de transferencia!', 'success')
+    }).catch(() => {
+      showToast('Erro ao copiar. Tente novamente.', 'error')
+    })
+  }, [showToast])
 
   const handleLogout = () => {
     sessionStorage.removeItem('admin_auth')
@@ -815,10 +1086,8 @@ export default function AdminPage() {
             <div className="flex items-center gap-3">
               {/* User badge */}
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-sand-100">
-                <div className="w-6 h-6 rounded-full bg-olive-500 flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">A</span>
-                </div>
-                <span className="text-xs font-medium text-charcoal-600">Admin</span>
+                <img src="/logo.png" alt="Logo" className="w-6 h-6 object-contain" />
+                <span className="text-xs font-medium text-charcoal-600">Jeova Guedes</span>
               </div>
               {/* Logout */}
               <button
@@ -1245,6 +1514,815 @@ export default function AdminPage() {
               )}
             </div>
           )}
+
+          {/* ──────── Portais Section ──────── */}
+          {section === 'portais' && (() => {
+            const enrichedPortais = portais.map((p) => ({
+              ...p,
+              status: getPortalStatus(p),
+            }))
+            const filteredPortais = enrichedPortais
+              .filter((p) => p.name.toLowerCase().includes(portalSearch.toLowerCase()))
+              .filter((p) => portalFilter === 'todos' ? true : p.category === portalFilter)
+            const totalPortais = enrichedPortais.length
+            const ativosPortais = enrichedPortais.filter((p) => p.status === 'ativo').length
+            const pagosPortais = enrichedPortais.filter((p) => p.category === 'pago').length
+            const gratuitosPortais = enrichedPortais.filter((p) => p.category === 'gratuito').length
+            const feedUrl = 'https://jeovaimoveis.com.br/feed/imoveis.xml'
+
+            const getConfigForPortal = (portalId: number): PortalConfig => {
+              return portalConfigs[portalId] || {
+                apiKey: '',
+                apiSecret: '',
+                feedUrl: `https://jeovaimoveis.com.br/feed/${portalId}.xml`,
+                status: 'desconectado' as const,
+                autoSync: false,
+                lastSync: null,
+              }
+            }
+
+            const handleTestConnection = (portalId: number) => {
+              setTestingConnection(portalId)
+              setTimeout(() => {
+                const currentConfig = getConfigForPortal(portalId)
+                const updatedConfig: PortalConfig = {
+                  ...currentConfig,
+                  status: 'conectado',
+                  lastSync: new Date().toLocaleString('pt-BR'),
+                }
+                savePortalConfig(portalId, updatedConfig)
+                setTestingConnection(null)
+                showToast('Conexao testada com sucesso!', 'success')
+              }, 2000)
+            }
+
+            return (
+              <div>
+                {/* Header */}
+                <div className="mb-8">
+                  <h2 className="font-heading text-2xl sm:text-3xl font-bold text-charcoal-800">
+                    Gerenciamento de Integracoes
+                  </h2>
+                  <p className="text-charcoal-400 mt-1">
+                    {totalPortais} portais configurados &middot; {ativosPortais} ativos &middot; {localProperties.length} imoveis no feed
+                  </p>
+                </div>
+
+                {/* Subtabs */}
+                <div className="flex items-center gap-1 p-1 bg-sand-100 rounded-xl mb-8 overflow-x-auto">
+                  {([
+                    { key: 'overview' as const, label: 'Visao Geral', icon: 'M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z' },
+                    { key: 'portais' as const, label: 'Portais', icon: 'M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.02a4.5 4.5 0 00-6.364-6.364L4.5 8.257' },
+                    { key: 'feed' as const, label: 'Feed XML', icon: 'M12.75 3.03v.568c0 .334.148.65.405.864l1.068.89c.442.369.535 1.01.216 1.49l-.51.766a2.25 2.25 0 01-1.161.886l-.143.048a1.107 1.107 0 00-.57 1.664c.369.555.169 1.307-.427 1.605L9 13.125l.423 1.059a.956.956 0 01-1.652.928l-.679-.906a1.125 1.125 0 00-1.906.172L4.5 15.75l-.612.153M12.75 3.031a9 9 0 00-8.862 12.872M12.75 3.031a9 9 0 016.69 14.036m0 0l-.177-.529A2.25 2.25 0 0017.128 15H16.5l-.324-.324a1.453 1.453 0 00-2.328.377l-.036.073a1.586 1.586 0 01-.982.816l-.99.282c-.55.157-.894.702-.8 1.267l.073.438c.08.474.49.821.97.821.846 0 1.598.542 1.865 1.345l.215.643m5.276-3.67a9.012 9.012 0 01-5.276 3.67' },
+                    { key: 'guia' as const, label: 'Guia de Integracao', icon: 'M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25' },
+                  ]).map((tab) => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setPortalSubTab(tab.key)}
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                        portalSubTab === tab.key
+                          ? 'bg-white text-charcoal-800 shadow-sm'
+                          : 'text-charcoal-400 hover:text-charcoal-600'
+                      }`}
+                    >
+                      <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d={tab.icon} />
+                      </svg>
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* ─── Subtab: Visao Geral ─── */}
+                {portalSubTab === 'overview' && (
+                  <div>
+                    {/* Metric cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-8">
+                      {/* Total Portais */}
+                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-sand-100 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="w-12 h-12 rounded-xl bg-olive-50 flex items-center justify-center">
+                            <svg className="w-6 h-6 text-olive-500" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.02a4.5 4.5 0 00-6.364-6.364L4.5 8.257" />
+                            </svg>
+                          </div>
+                          <span className="text-xs font-medium text-olive-600 bg-olive-50 px-2.5 py-1 rounded-full">Total</span>
+                        </div>
+                        <p className="text-3xl font-bold text-charcoal-800">{totalPortais}</p>
+                        <p className="text-sm text-charcoal-400 mt-1">Total de Portais</p>
+                      </div>
+
+                      {/* Ativos */}
+                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-sand-100 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
+                            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <span className="text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full">Online</span>
+                        </div>
+                        <p className="text-3xl font-bold text-charcoal-800">{ativosPortais}</p>
+                        <p className="text-sm text-charcoal-400 mt-1">Ativos</p>
+                      </div>
+
+                      {/* Pagos */}
+                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-sand-100 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="w-12 h-12 rounded-xl bg-gold-50 flex items-center justify-center">
+                            <svg className="w-6 h-6 text-gold-500" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <span className="text-xs font-medium text-gold-600 bg-gold-50 px-2.5 py-1 rounded-full">Premium</span>
+                        </div>
+                        <p className="text-3xl font-bold text-charcoal-800">{pagosPortais}</p>
+                        <p className="text-sm text-charcoal-400 mt-1">Pagos</p>
+                      </div>
+
+                      {/* Gratuitos */}
+                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-sand-100 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="w-12 h-12 rounded-xl bg-charcoal-50 flex items-center justify-center">
+                            <svg className="w-6 h-6 text-charcoal-500" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                            </svg>
+                          </div>
+                          <span className="text-xs font-medium text-charcoal-500 bg-charcoal-50 px-2.5 py-1 rounded-full">Free</span>
+                        </div>
+                        <p className="text-3xl font-bold text-charcoal-800">{gratuitosPortais}</p>
+                        <p className="text-sm text-charcoal-400 mt-1">Gratuitos</p>
+                      </div>
+                    </div>
+
+                    {/* Export Tools */}
+                    <h3 className="font-heading font-bold text-charcoal-800 text-lg mb-4">Ferramentas de Exportacao</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                      {/* Feed XML URL */}
+                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-sand-100 hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12.75 3.03v.568c0 .334.148.65.405.864l1.068.89c.442.369.535 1.01.216 1.49l-.51.766a2.25 2.25 0 01-1.161.886l-.143.048a1.107 1.107 0 00-.57 1.664c.369.555.169 1.307-.427 1.605L9 13.125l.423 1.059a.956.956 0 01-1.652.928l-.679-.906a1.125 1.125 0 00-1.906.172L4.5 15.75l-.612.153M12.75 3.031a9 9 0 00-8.862 12.872M12.75 3.031a9 9 0 016.69 14.036" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h4 className="font-heading font-bold text-charcoal-800 text-sm">Feed XML</h4>
+                            <p className="text-xs text-charcoal-400">URL do feed para portais</p>
+                          </div>
+                        </div>
+                        <div className="bg-sand-50 rounded-lg p-3 mb-3">
+                          <p className="text-xs text-charcoal-600 font-mono break-all">{feedUrl}</p>
+                        </div>
+                        <button
+                          onClick={() => copyToClipboard(feedUrl)}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                          </svg>
+                          Copiar URL
+                        </button>
+                      </div>
+
+                      {/* Exportar CSV */}
+                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-sand-100 hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
+                            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-9.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-7.5A1.125 1.125 0 0112 18.375m9.75-12.75c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125m19.5 0v1.5c0 .621-.504 1.125-1.125 1.125M2.25 5.625v1.5c0 .621.504 1.125 1.125 1.125m0 0h17.25m-17.25 0h7.5c.621 0 1.125.504 1.125 1.125M3.375 8.25c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m17.25-3.75h-7.5c-.621 0-1.125.504-1.125 1.125m8.625-1.125c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M12 10.875v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125M10.875 12c-.621 0-1.125.504-1.125 1.125M12 12c.621 0 1.125.504 1.125 1.125m0 0v1.5c0 .621-.504 1.125-1.125 1.125m0-2.625c-.621 0-1.125.504-1.125 1.125" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h4 className="font-heading font-bold text-charcoal-800 text-sm">Exportar CSV</h4>
+                            <p className="text-xs text-charcoal-400">{localProperties.length} imoveis</p>
+                          </div>
+                        </div>
+                        <p className="text-sm text-charcoal-500 mb-4">Gere um arquivo CSV com todos os imoveis cadastrados para importacao em planilhas.</p>
+                        <button
+                          onClick={() => {
+                            downloadFile(generateCSV(), 'imoveis-jeova-guedes.csv', 'text/csv;charset=utf-8')
+                            showToast('CSV baixado com sucesso!', 'success')
+                          }}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-green-600 bg-green-50 hover:bg-green-100 transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                          </svg>
+                          Baixar CSV
+                        </button>
+                      </div>
+
+                      {/* Exportar XML */}
+                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-sand-100 hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
+                            <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h4 className="font-heading font-bold text-charcoal-800 text-sm">Exportar XML</h4>
+                            <p className="text-xs text-charcoal-400">{localProperties.length} imoveis</p>
+                          </div>
+                        </div>
+                        <p className="text-sm text-charcoal-500 mb-4">Gere um arquivo XML no formato padrao de portais imobiliarios brasileiros.</p>
+                        <button
+                          onClick={() => {
+                            downloadFile(generateXML(), 'imoveis-jeova-guedes.xml', 'application/xml;charset=utf-8')
+                            showToast('XML baixado com sucesso!', 'success')
+                          }}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-orange-600 bg-orange-50 hover:bg-orange-100 transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                          </svg>
+                          Baixar XML
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ─── Subtab: Portais ─── */}
+                {portalSubTab === 'portais' && (
+                  <div>
+                    {/* Search + Filter tabs */}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+                      {/* Search */}
+                      <div className="relative max-w-md flex-1">
+                        <svg
+                          className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-charcoal-300"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                        </svg>
+                        <input
+                          type="text"
+                          placeholder="Buscar portal por nome..."
+                          value={portalSearch}
+                          onChange={(e) => setPortalSearch(e.target.value)}
+                          className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-sand-200 bg-white outline-none text-sm text-charcoal-700 placeholder:text-charcoal-300 focus:border-olive-400 transition-colors"
+                        />
+                      </div>
+
+                      {/* Filter tabs */}
+                      <div className="flex items-center gap-1 p-1 bg-sand-100 rounded-xl">
+                        {([
+                          { key: 'todos' as const, label: 'Todos' },
+                          { key: 'pago' as const, label: 'Pagos' },
+                          { key: 'gratuito' as const, label: 'Gratuitos' },
+                        ]).map((tab) => (
+                          <button
+                            key={tab.key}
+                            onClick={() => setPortalFilter(tab.key)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                              portalFilter === tab.key
+                                ? 'bg-white text-charcoal-800 shadow-sm'
+                                : 'text-charcoal-400 hover:text-charcoal-600'
+                            }`}
+                          >
+                            {tab.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Portal grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+                      {filteredPortais.map((portal) => {
+                        const config = getConfigForPortal(portal.id)
+                        const isConfiguring = configuringPortal === portal.id
+
+                        return (
+                          <div
+                            key={portal.id}
+                            className={`bg-white rounded-2xl shadow-sm border transition-all duration-200 group ${
+                              isConfiguring ? 'border-olive-300 shadow-md' : 'border-sand-100 hover:shadow-md'
+                            }`}
+                          >
+                            <div className="p-6">
+                              {/* Top row: logo + name + badges */}
+                              <div className="flex items-start gap-4 mb-4">
+                                {/* Logo with fallback */}
+                                <div className="w-12 h-12 rounded-xl bg-sand-100 flex items-center justify-center shrink-0 overflow-hidden border border-sand-200">
+                                  <img
+                                    src={portal.logo}
+                                    alt={portal.name}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      const target = e.currentTarget
+                                      target.style.display = 'none'
+                                      const fallback = target.nextElementSibling as HTMLElement
+                                      if (fallback) fallback.style.display = 'flex'
+                                    }}
+                                  />
+                                  <div
+                                    className="w-full h-full items-center justify-center text-lg font-bold text-olive-600 bg-olive-50"
+                                    style={{ display: 'none' }}
+                                  >
+                                    {portal.name.charAt(0).toUpperCase()}
+                                  </div>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-heading font-bold text-charcoal-800 text-sm truncate">{portal.name}</h3>
+                                  <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                                    {/* Category badge */}
+                                    <span
+                                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide ${
+                                        portal.category === 'pago'
+                                          ? 'bg-gold-100 text-gold-700'
+                                          : 'bg-olive-100 text-olive-700'
+                                      }`}
+                                    >
+                                      {portal.category === 'pago' ? 'Pago' : 'Gratuito'}
+                                    </span>
+                                    {/* Status badge */}
+                                    <span
+                                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                                        portal.status === 'ativo'
+                                          ? 'bg-green-100 text-green-700'
+                                          : 'bg-charcoal-100 text-charcoal-500'
+                                      }`}
+                                    >
+                                      <span
+                                        className={`w-1.5 h-1.5 rounded-full mr-1 ${
+                                          portal.status === 'ativo' ? 'bg-green-500' : 'bg-charcoal-400'
+                                        }`}
+                                      />
+                                      {portal.status === 'ativo' ? 'Ativo' : 'Em breve'}
+                                    </span>
+                                    {/* Connection status badge */}
+                                    {config.apiKey && (
+                                      <span
+                                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                                          config.status === 'conectado'
+                                            ? 'bg-blue-100 text-blue-700'
+                                            : config.status === 'pendente'
+                                            ? 'bg-yellow-100 text-yellow-700'
+                                            : 'bg-red-100 text-red-700'
+                                        }`}
+                                      >
+                                        {config.status === 'conectado' ? 'Conectado' : config.status === 'pendente' ? 'Pendente' : 'Desconectado'}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Description */}
+                              <p className="text-sm text-charcoal-500 leading-relaxed mb-4 line-clamp-2">
+                                {portal.description}
+                              </p>
+
+                              {/* Info rows */}
+                              <div className="space-y-2 mb-5">
+                                <div className="flex items-center gap-2 text-xs text-charcoal-400">
+                                  <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                                  </svg>
+                                  <span>Cobertura: <span className="font-medium text-charcoal-600">{portal.cobertura}</span></span>
+                                </div>
+                                <div className="flex items-center gap-2 text-xs text-charcoal-400">
+                                  <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87a6.52 6.52 0 01.22.128c.331.183.581.495.644.869l.213 1.28c.09.543.56.941 1.11.941h.594" />
+                                  </svg>
+                                  <span>Automacao: <span className="font-medium text-charcoal-600">{portal.automacao}</span></span>
+                                </div>
+                                {config.lastSync && (
+                                  <div className="flex items-center gap-2 text-xs text-charcoal-400">
+                                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>Ultima Sincronizacao: <span className="font-medium text-charcoal-600">{config.lastSync}</span></span>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Actions */}
+                              <div className="flex items-center gap-2 pt-4 border-t border-sand-100">
+                                <button
+                                  onClick={() => {
+                                    togglePortalStatus(portal.id)
+                                    showToast(
+                                      portal.status === 'ativo'
+                                        ? `${portal.name} marcado como "Em breve"`
+                                        : `${portal.name} ativado com sucesso!`,
+                                      'success'
+                                    )
+                                  }}
+                                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 ${
+                                    portal.status === 'ativo'
+                                      ? 'bg-green-50 text-green-700 hover:bg-green-100'
+                                      : 'bg-charcoal-50 text-charcoal-500 hover:bg-charcoal-100'
+                                  }`}
+                                >
+                                  {portal.status === 'ativo' ? (
+                                    <>
+                                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                      </svg>
+                                      Ativo
+                                    </>
+                                  ) : (
+                                    <>
+                                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                      Em breve
+                                    </>
+                                  )}
+                                </button>
+                                <button
+                                  onClick={() => setConfiguringPortal(isConfiguring ? null : portal.id)}
+                                  className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-colors ${
+                                    isConfiguring
+                                      ? 'text-white bg-olive-600 hover:bg-olive-700'
+                                      : 'text-olive-600 bg-olive-50 hover:bg-olive-100'
+                                  }`}
+                                >
+                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.07.04.14.078.209.118.684.396 1.521.28 2.076-.274l.928-.929a1.125 1.125 0 011.591 0l1.83 1.83a1.125 1.125 0 010 1.591l-.929.928c-.554.555-.67 1.392-.274 2.076.04.069.078.139.118.209.183.332.496.582.87.645l1.281.213c.542.09.94.56.94 1.11v2.593c0 .55-.398 1.02-.94 1.11l-1.281.213a1.456 1.456 0 00-.87.645 6.52 6.52 0 01-.118.209c-.396.684-.28 1.521.274 2.076l.929.928a1.125 1.125 0 010 1.591l-1.83 1.83a1.125 1.125 0 01-1.591 0l-.928-.929c-.555-.554-1.392-.67-2.076-.274a6.52 6.52 0 01-.209.118 1.456 1.456 0 00-.645.87l-.213 1.281c-.09.542-.56.94-1.11.94h-2.593c-.55 0-1.02-.398-1.11-.94l-.213-1.281a1.456 1.456 0 00-.645-.87 6.52 6.52 0 01-.209-.118c-.684-.396-1.521-.28-2.076.274l-.928.929a1.125 1.125 0 01-1.591 0l-1.83-1.83a1.125 1.125 0 010-1.591l.929-.928c.554-.555.67-1.392.274-2.076a6.52 6.52 0 01-.118-.209 1.456 1.456 0 00-.87-.645l-1.281-.213a1.125 1.125 0 01-.94-1.11v-2.593c0-.55.398-1.02.94-1.11l1.281-.213c.374-.063.686-.313.87-.645a6.52 6.52 0 01.118-.209c.396-.684.28-1.521-.274-2.076l-.929-.928a1.125 1.125 0 010-1.591l1.83-1.83a1.125 1.125 0 011.591 0l.928.929c.555.554 1.392.67 2.076.274a6.52 6.52 0 01.209-.118c.332-.183.582-.496.645-.87l.213-1.281z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  </svg>
+                                  Configurar
+                                </button>
+                                <a
+                                  href={portal.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-charcoal-500 bg-charcoal-50 hover:bg-charcoal-100 transition-colors"
+                                >
+                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                  </svg>
+                                </a>
+                              </div>
+                            </div>
+
+                            {/* Configuration Panel */}
+                            {isConfiguring && (
+                              <div className="border-t border-sand-200 bg-sand-50/50 p-6 rounded-b-2xl">
+                                <h4 className="font-heading font-bold text-charcoal-800 text-sm mb-4 flex items-center gap-2">
+                                  <svg className="w-4 h-4 text-olive-500" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17l-5.76-3.32a.75.75 0 010-1.3l5.76-3.32a.75.75 0 01.76 0l5.76 3.32a.75.75 0 010 1.3l-5.76 3.32a.75.75 0 01-.76 0z" />
+                                  </svg>
+                                  Configuracao - {portal.name}
+                                </h4>
+
+                                <div className="space-y-4">
+                                  {/* API Key */}
+                                  <div>
+                                    <label className="block text-xs font-semibold text-charcoal-600 mb-1.5">API Key</label>
+                                    <input
+                                      type="text"
+                                      value={config.apiKey}
+                                      onChange={(e) => savePortalConfig(portal.id, { ...config, apiKey: e.target.value, status: 'pendente' })}
+                                      placeholder="Insira sua API Key..."
+                                      className="w-full px-3 py-2.5 rounded-lg border-2 border-sand-200 bg-white outline-none text-sm text-charcoal-700 placeholder:text-charcoal-300 focus:border-olive-400 transition-colors font-mono"
+                                    />
+                                  </div>
+
+                                  {/* API Secret */}
+                                  <div>
+                                    <label className="block text-xs font-semibold text-charcoal-600 mb-1.5">API Secret</label>
+                                    <input
+                                      type="password"
+                                      value={config.apiSecret}
+                                      onChange={(e) => savePortalConfig(portal.id, { ...config, apiSecret: e.target.value, status: 'pendente' })}
+                                      placeholder="Insira sua API Secret..."
+                                      className="w-full px-3 py-2.5 rounded-lg border-2 border-sand-200 bg-white outline-none text-sm text-charcoal-700 placeholder:text-charcoal-300 focus:border-olive-400 transition-colors font-mono"
+                                    />
+                                  </div>
+
+                                  {/* Feed URL */}
+                                  <div>
+                                    <label className="block text-xs font-semibold text-charcoal-600 mb-1.5">Feed URL (auto-gerado)</label>
+                                    <div className="flex gap-2">
+                                      <input
+                                        type="text"
+                                        value={config.feedUrl || `https://jeovaimoveis.com.br/feed/${portal.id}.xml`}
+                                        readOnly
+                                        className="flex-1 px-3 py-2.5 rounded-lg border-2 border-sand-200 bg-sand-50 outline-none text-sm text-charcoal-500 font-mono"
+                                      />
+                                      <button
+                                        onClick={() => copyToClipboard(config.feedUrl || `https://jeovaimoveis.com.br/feed/${portal.id}.xml`)}
+                                        className="px-3 py-2.5 rounded-lg bg-olive-50 text-olive-600 hover:bg-olive-100 transition-colors"
+                                        title="Copiar URL"
+                                      >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  {/* Connection Status */}
+                                  <div className="flex items-center justify-between bg-white rounded-lg border border-sand-200 p-3">
+                                    <div className="flex items-center gap-2">
+                                      <span
+                                        className={`w-2.5 h-2.5 rounded-full ${
+                                          config.status === 'conectado'
+                                            ? 'bg-green-500'
+                                            : config.status === 'pendente'
+                                            ? 'bg-yellow-500'
+                                            : 'bg-red-500'
+                                        }`}
+                                      />
+                                      <span className="text-xs font-medium text-charcoal-600">
+                                        Status: {config.status === 'conectado' ? 'Conectado' : config.status === 'pendente' ? 'Pendente' : 'Desconectado'}
+                                      </span>
+                                    </div>
+                                    {config.lastSync && (
+                                      <span className="text-[10px] text-charcoal-400">
+                                        Sync: {config.lastSync}
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {/* Auto Sync Toggle */}
+                                  <div className="flex items-center justify-between bg-white rounded-lg border border-sand-200 p-3">
+                                    <div>
+                                      <p className="text-xs font-semibold text-charcoal-700">Sincronizacao Automatica</p>
+                                      <p className="text-[10px] text-charcoal-400 mt-0.5">Manter anuncios atualizados automaticamente</p>
+                                    </div>
+                                    <button
+                                      onClick={() => {
+                                        savePortalConfig(portal.id, { ...config, autoSync: !config.autoSync })
+                                        showToast(
+                                          !config.autoSync
+                                            ? `Sincronizacao automatica ativada para ${portal.name}`
+                                            : `Sincronizacao automatica desativada para ${portal.name}`,
+                                          'info'
+                                        )
+                                      }}
+                                      className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${
+                                        config.autoSync ? 'bg-olive-500' : 'bg-charcoal-200'
+                                      }`}
+                                    >
+                                      <span
+                                        className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200 ${
+                                          config.autoSync ? 'translate-x-5' : 'translate-x-0'
+                                        }`}
+                                      />
+                                    </button>
+                                  </div>
+
+                                  {/* Test Connection Button */}
+                                  <button
+                                    onClick={() => handleTestConnection(portal.id)}
+                                    disabled={testingConnection === portal.id || (!config.apiKey && !config.apiSecret)}
+                                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 ${
+                                      testingConnection === portal.id
+                                        ? 'bg-charcoal-100 text-charcoal-400 cursor-wait'
+                                        : !config.apiKey && !config.apiSecret
+                                        ? 'bg-charcoal-50 text-charcoal-300 cursor-not-allowed'
+                                        : 'bg-olive-600 text-white hover:bg-olive-700'
+                                    }`}
+                                  >
+                                    {testingConnection === portal.id ? (
+                                      <>
+                                        <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                        </svg>
+                                        Testando Conexao...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z" />
+                                        </svg>
+                                        Testar Conexao
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {filteredPortais.length === 0 && (
+                      <div className="text-center py-16">
+                        <svg className="w-16 h-16 text-charcoal-200 mx-auto mb-4" fill="none" stroke="currentColor" strokeWidth="1" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                        </svg>
+                        <p className="text-charcoal-400 font-medium">Nenhum portal encontrado</p>
+                        <p className="text-charcoal-300 text-sm mt-1">Tente alterar os termos da busca ou filtro</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* ─── Subtab: Feed XML ─── */}
+                {portalSubTab === 'feed' && (
+                  <div>
+                    {/* Feed info header */}
+                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-sand-100 mb-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                          <h3 className="font-heading font-bold text-charcoal-800 text-lg">Preview do Feed XML</h3>
+                          <p className="text-sm text-charcoal-400 mt-1">
+                            {localProperties.length} imoveis serao exportados no feed
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => copyToClipboard(generateXML())}
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-olive-600 bg-olive-50 hover:bg-olive-100 transition-colors"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                            </svg>
+                            Copiar XML
+                          </button>
+                          <button
+                            onClick={() => {
+                              downloadFile(generateXML(), 'imoveis-jeova-guedes.xml', 'application/xml;charset=utf-8')
+                              showToast('XML baixado com sucesso!', 'success')
+                            }}
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-white bg-olive-600 hover:bg-olive-700 transition-colors"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                            Baixar XML
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* XML Preview */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-sand-100 overflow-hidden">
+                      <div className="flex items-center justify-between px-6 py-3 bg-charcoal-800">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full bg-red-400" />
+                          <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                          <div className="w-3 h-3 rounded-full bg-green-400" />
+                        </div>
+                        <span className="text-xs text-charcoal-400 font-mono">imoveis-jeova-guedes.xml</span>
+                      </div>
+                      <pre className="p-6 overflow-x-auto text-xs leading-relaxed font-mono text-charcoal-700 bg-charcoal-50 max-h-[600px] overflow-y-auto">
+                        {generateXML()}
+                      </pre>
+                    </div>
+                  </div>
+                )}
+
+                {/* ─── Subtab: Guia de Integracao ─── */}
+                {portalSubTab === 'guia' && (
+                  <div>
+                    {/* Step by step guide */}
+                    <h3 className="font-heading font-bold text-charcoal-800 text-lg mb-6">Passo a Passo para Integracao</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-10">
+                      {/* Passo 1 */}
+                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-sand-100 hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 rounded-xl bg-olive-600 text-white flex items-center justify-center text-sm font-bold shrink-0">1</div>
+                          <h4 className="font-heading font-bold text-charcoal-800">Feed XML</h4>
+                        </div>
+                        <p className="text-sm text-charcoal-500 leading-relaxed">
+                          Copie a URL do feed XML e cadastre no portal desejado. O feed contem todos os seus imoveis ativos no formato padrao aceito pelos principais portais brasileiros.
+                        </p>
+                        <div className="mt-4 bg-sand-50 rounded-lg p-3">
+                          <p className="text-xs text-charcoal-500 font-mono break-all">{feedUrl}</p>
+                        </div>
+                        <button
+                          onClick={() => copyToClipboard(feedUrl)}
+                          className="mt-3 flex items-center gap-2 text-xs font-semibold text-olive-600 hover:text-olive-700 transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                          </svg>
+                          Copiar URL do Feed
+                        </button>
+                      </div>
+
+                      {/* Passo 2 */}
+                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-sand-100 hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 rounded-xl bg-olive-600 text-white flex items-center justify-center text-sm font-bold shrink-0">2</div>
+                          <h4 className="font-heading font-bold text-charcoal-800">Credenciais</h4>
+                        </div>
+                        <p className="text-sm text-charcoal-500 leading-relaxed">
+                          Configure suas credenciais de API de cada portal na aba Portais. Cada portal fornece uma API Key e API Secret que devem ser inseridas para autenticar a integracao.
+                        </p>
+                        <button
+                          onClick={() => setPortalSubTab('portais')}
+                          className="mt-4 flex items-center gap-2 text-xs font-semibold text-olive-600 hover:text-olive-700 transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                          </svg>
+                          Ir para aba Portais
+                        </button>
+                      </div>
+
+                      {/* Passo 3 */}
+                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-sand-100 hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 rounded-xl bg-olive-600 text-white flex items-center justify-center text-sm font-bold shrink-0">3</div>
+                          <h4 className="font-heading font-bold text-charcoal-800">Sincronizacao</h4>
+                        </div>
+                        <p className="text-sm text-charcoal-500 leading-relaxed">
+                          Ative a sincronizacao automatica para manter os anuncios atualizados em todos os portais. Quando habilitada, alteracoes nos imoveis serao refletidas automaticamente.
+                        </p>
+                      </div>
+
+                      {/* Passo 4 */}
+                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-sand-100 hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 rounded-xl bg-olive-600 text-white flex items-center justify-center text-sm font-bold shrink-0">4</div>
+                          <h4 className="font-heading font-bold text-charcoal-800">Verificacao</h4>
+                        </div>
+                        <p className="text-sm text-charcoal-500 leading-relaxed">
+                          Teste a conexao e verifique se os imoveis estao aparecendo no portal. Use o botao &ldquo;Testar Conexao&rdquo; na configuracao de cada portal para validar a integracao.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Formatos Suportados */}
+                    <h3 className="font-heading font-bold text-charcoal-800 text-lg mb-4">Formatos Suportados</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-10">
+                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-sand-100 text-center">
+                        <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center mx-auto mb-3">
+                          <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                          </svg>
+                        </div>
+                        <h4 className="font-heading font-bold text-charcoal-800 text-sm mb-1">XML Feed</h4>
+                        <p className="text-xs text-charcoal-400">Formato padrao para portais imobiliarios brasileiros</p>
+                      </div>
+                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-sand-100 text-center">
+                        <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center mx-auto mb-3">
+                          <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-9.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-7.5A1.125 1.125 0 0112 18.375m9.75-12.75c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125m19.5 0v1.5c0 .621-.504 1.125-1.125 1.125M2.25 5.625v1.5c0 .621.504 1.125 1.125 1.125m0 0h17.25m-17.25 0h7.5c.621 0 1.125.504 1.125 1.125" />
+                          </svg>
+                        </div>
+                        <h4 className="font-heading font-bold text-charcoal-800 text-sm mb-1">CSV</h4>
+                        <p className="text-xs text-charcoal-400">Compativel com planilhas e importacao em massa</p>
+                      </div>
+                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-sand-100 text-center">
+                        <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mx-auto mb-3">
+                          <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25" />
+                          </svg>
+                        </div>
+                        <h4 className="font-heading font-bold text-charcoal-800 text-sm mb-1">JSON API</h4>
+                        <p className="text-xs text-charcoal-400">API RESTful para integracoes customizadas</p>
+                      </div>
+                    </div>
+
+                    {/* FAQ */}
+                    <h3 className="font-heading font-bold text-charcoal-800 text-lg mb-4">Perguntas Frequentes</h3>
+                    <div className="space-y-4">
+                      {[
+                        {
+                          q: 'Quanto tempo leva para os imoveis aparecerem no portal?',
+                          a: 'Apos configurar a integracao e ativar a sincronizacao, os imoveis geralmente aparecem no portal em ate 24 horas. Alguns portais podem levar ate 48 horas para processar o feed pela primeira vez.',
+                        },
+                        {
+                          q: 'Preciso de uma conta paga no portal para integrar?',
+                          a: 'Depende do portal. Alguns portais como OLX e Chaves na Mao oferecem integracao gratuita. Portais como ZAP Imoveis e VivaReal exigem um plano pago para publicacao via feed XML.',
+                        },
+                        {
+                          q: 'O que acontece se eu editar um imovel apos a integracao?',
+                          a: 'Se a sincronizacao automatica estiver ativada, as alteracoes serao enviadas automaticamente na proxima sincronizacao. Caso contrario, voce pode forcar uma nova sincronizacao manualmente.',
+                        },
+                        {
+                          q: 'Posso integrar com portais que nao estao na lista?',
+                          a: 'Sim! Se o portal aceita feed XML no formato padrao brasileiro, voce pode usar a URL do feed XML gerada automaticamente. Basta copiar a URL na aba Visao Geral e cadastrar no portal desejado.',
+                        },
+                        {
+                          q: 'Como obtenho as credenciais de API?',
+                          a: 'As credenciais de API (API Key e API Secret) sao fornecidas pelo proprio portal apos a criacao de uma conta profissional/corretora. Acesse o painel do portal e procure pela secao de integracoes ou API.',
+                        },
+                      ].map((faq, idx) => (
+                        <div key={idx} className="bg-white rounded-2xl p-6 shadow-sm border border-sand-100">
+                          <h4 className="font-heading font-bold text-charcoal-800 text-sm mb-2 flex items-start gap-2">
+                            <svg className="w-5 h-5 text-olive-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+                            </svg>
+                            {faq.q}
+                          </h4>
+                          <p className="text-sm text-charcoal-500 leading-relaxed pl-7">
+                            {faq.a}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })()}
 
           {/* ──────── Configuracoes Section ──────── */}
           {section === 'configuracoes' && (

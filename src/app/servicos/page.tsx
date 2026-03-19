@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 
-const WHATSAPP_URL = 'https://wa.me/5571999999999'
+const WHATSAPP_URL = 'https://wa.me/5571997106376'
 
 const services = [
   {
@@ -18,6 +18,7 @@ const services = [
       'Negociacao do melhor preco e condicoes',
       'Suporte na documentacao e financiamento',
     ],
+    image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&h=600&fit=crop&q=80',
     icon: (
       <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
@@ -36,6 +37,7 @@ const services = [
       'Triagem e qualificacao de compradores',
       'Assessoria juridica completa na negociacao',
     ],
+    image: 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800&h=600&fit=crop&q=80',
     icon: (
       <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
@@ -54,6 +56,7 @@ const services = [
       'Vistorias periodicas do imovel',
       'Gestao de manutencoes e reparos',
     ],
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop&q=80',
     icon: (
       <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205l3 1m1.5.5l-1.5-.5M6.75 7.364V3h-3v18m3-13.636l10.5-3.819" />
@@ -72,6 +75,7 @@ const services = [
       'Diversificacao de portfolio imobiliario',
       'Acompanhamento pos-compra',
     ],
+    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&q=80',
     icon: (
       <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
@@ -139,18 +143,32 @@ function ServiceSection({
     >
       <div className="max-w-7xl mx-auto">
         <div className={`grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center ${reversed ? 'lg:[direction:rtl]' : ''}`}>
-          {/* Image Placeholder */}
+          {/* Service Image */}
           <motion.div
-            className={`relative h-[350px] lg:h-[450px] rounded-2xl bg-charcoal-200 overflow-hidden flex items-center justify-center ${reversed ? 'lg:[direction:ltr]' : ''}`}
+            className={`relative h-[350px] lg:h-[450px] rounded-2xl overflow-hidden group ${reversed ? 'lg:[direction:ltr]' : ''}`}
             initial={{ opacity: 0, x: reversed ? 40 : -40 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7 }}
           >
-            <div className="text-charcoal-300">
-              {service.icon}
-            </div>
-            <div className="absolute top-4 left-4 bg-olive-600 text-white text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full">
+            <img
+              src={service.image}
+              alt={service.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/60 via-charcoal-900/10 to-transparent" />
+            {/* Number badge */}
+            <div className="absolute top-4 left-4 bg-olive-600 text-white text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-lg">
               0{index + 1}
+            </div>
+            {/* Icon + title overlay at bottom */}
+            <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shrink-0">
+                {service.icon}
+              </div>
+              <span className="font-heading text-lg font-bold text-white drop-shadow-lg">
+                {service.title}
+              </span>
             </div>
           </motion.div>
 

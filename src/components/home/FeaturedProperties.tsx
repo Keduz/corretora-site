@@ -144,11 +144,11 @@ export default function FeaturedProperties() {
                     {/* Link */}
                     <Link
                       href={`/imoveis/${property.slug}`}
-                      className="text-olive-600 text-sm font-medium hover:text-olive-700 transition-colors flex items-center gap-1"
+                      className="inline-flex items-center gap-1.5 px-5 py-2 bg-olive-600 text-white text-sm font-semibold rounded-lg hover:bg-olive-700 shadow-sm hover:shadow-md transition-all duration-200"
                     >
-                      Ver Detalhes
+                      Ver Imovel
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                       </svg>
                     </Link>
                   </div>

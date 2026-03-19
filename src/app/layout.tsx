@@ -19,16 +19,31 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Corretora de Imoveis | Salvador, Feira de Santana e Alagoinhas - BA',
+  title: 'Jeova Guedes | Corretor de Imoveis - Porto de Sauipe, BA',
   description:
-    'Encontre o imovel dos seus sonhos na Bahia. Compra, venda e aluguel com atendimento personalizado em Salvador, Feira de Santana e Alagoinhas.',
+    'Os melhores precos e as melhores oportunidades em imoveis no litoral da Bahia. Compra, venda e aluguel com Jeova Guedes Corretor de Imoveis.',
   keywords:
-    'imoveis bahia, corretora salvador, apartamento feira de santana, casa alagoinhas, aluguel bahia, comprar imovel salvador',
+    'jeova guedes, corretor de imoveis, porto de sauipe, imoveis bahia, litoral norte bahia, casa praia bahia, apartamento salvador',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
   openGraph: {
-    title: 'Corretora de Imoveis | Bahia',
-    description: 'Compra, venda e aluguel com atendimento personalizado na Bahia.',
+    title: 'Jeova Guedes | Corretor de Imoveis',
+    description: 'Os melhores precos e as melhores oportunidades em imoveis no litoral da Bahia.',
     type: 'website',
     locale: 'pt_BR',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Jeova Guedes - Corretor de Imoveis',
+      },
+    ],
   },
 }
 

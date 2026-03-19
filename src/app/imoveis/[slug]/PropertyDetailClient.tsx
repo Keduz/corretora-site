@@ -7,8 +7,9 @@ import type { Property } from '@/data/properties'
 import { formatPrice } from '@/data/properties'
 import ImageGallery from '@/components/ImageGallery'
 import FavoriteButton from '@/components/FavoriteButton'
+import PropertyMap from '@/components/PropertyMap'
 
-const WHATSAPP_URL = 'https://wa.me/5571999999999'
+const WHATSAPP_URL = 'https://wa.me/5571997106376'
 
 const typeLabels: Record<string, string> = {
   apartamento: 'Apartamento',
@@ -190,6 +191,27 @@ export default function PropertyDetailClient({
                   <p className="text-charcoal-600 leading-relaxed">{property.description}</p>
                 </div>
 
+                {/* YouTube Video Tour */}
+                {property.youtubeVideoId && (
+                  <div className="mt-10">
+                    <h2 className="font-heading text-2xl text-charcoal-800 mb-4 flex items-center gap-3">
+                      <svg className="w-7 h-7 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                      </svg>
+                      Tour Virtual
+                    </h2>
+                    <div className="relative w-full rounded-2xl overflow-hidden bg-charcoal-900 shadow-lg" style={{ paddingBottom: '56.25%' }}>
+                      <iframe
+                        className="absolute inset-0 w-full h-full"
+                        src={`https://www.youtube.com/embed/${property.youtubeVideoId}?rel=0&modestbranding=1`}
+                        title={`Tour virtual - ${property.title}`}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {/* Features */}
                 <div className="mt-10" ref={featuresRef}>
                   <h2 className="font-heading text-2xl text-charcoal-800 mb-4">Caracteristicas</h2>
@@ -210,17 +232,29 @@ export default function PropertyDetailClient({
                   </motion.div>
                 </div>
 
-                {/* Location placeholder */}
+                {/* Location Map */}
                 <div className="mt-10">
-                  <h2 className="font-heading text-2xl text-charcoal-800 mb-4">Localizacao</h2>
-                  <div className="h-64 rounded-2xl bg-charcoal-200 flex items-center justify-center overflow-hidden">
-                    <div className="text-center">
-                      <svg className="w-10 h-10 text-charcoal-400 mx-auto mb-2" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
-                      </svg>
-                      <p className="text-charcoal-500 font-medium">{property.neighborhood}, {property.city} - BA</p>
-                    </div>
-                  </div>
+                  <h2 className="font-heading text-2xl text-charcoal-800 mb-4 flex items-center gap-3">
+                    <svg className="w-6 h-6 text-olive-600" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0115 0z" />
+                    </svg>
+                    Localizacao
+                  </h2>
+                  <PropertyMap
+                    lat={property.lat}
+                    lng={property.lng}
+                    title={property.title}
+                    neighborhood={property.neighborhood}
+                    city={property.city}
+                  />
+                  <p className="mt-3 text-charcoal-500 text-sm flex items-center gap-1.5">
+                    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0115 0z" />
+                    </svg>
+                    {property.neighborhood}, {property.city} - BA
+                  </p>
                 </div>
               </motion.div>
             </div>
@@ -315,17 +349,17 @@ export default function PropertyDetailClient({
                 <div className="bg-white rounded-2xl shadow-sm p-6">
                   <h3 className="font-heading text-lg text-charcoal-800 mb-4">Informacoes de Contato</h3>
                   <div className="space-y-3">
-                    <a href="tel:+5571999999999" className="flex items-center gap-3 text-charcoal-600 hover:text-gold-500 transition-colors text-sm">
+                    <a href="tel:+5571997106376" className="flex items-center gap-3 text-charcoal-600 hover:text-gold-500 transition-colors text-sm">
                       <svg className="w-5 h-5 text-olive-500" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
                       </svg>
-                      (71) 99999-9999
+                      (71) 99710-6376
                     </a>
-                    <a href="mailto:contato@corretora.com.br" className="flex items-center gap-3 text-charcoal-600 hover:text-gold-500 transition-colors text-sm">
+                    <a href="mailto:contato@jeovaimoveis.com.br" className="flex items-center gap-3 text-charcoal-600 hover:text-gold-500 transition-colors text-sm">
                       <svg className="w-5 h-5 text-olive-500" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                       </svg>
-                      contato@corretora.com.br
+                      contato@jeovaimoveis.com.br
                     </a>
                   </div>
                 </div>

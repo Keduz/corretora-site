@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { formatPrice } from '@/data/properties'
 import { useProperties } from '@/hooks/useProperties'
 import ImageCarousel from '@/components/ImageCarousel'
+import YouTubePreview, { VirtualTourBadge } from '@/components/YouTubePreview'
 import FavoriteButton from '@/components/FavoriteButton'
 import { useCompare } from '@/components/CompareContext'
 import { useToast } from '@/components/Toast'
@@ -64,6 +65,7 @@ export default function ImoveisPage() {
   const [showFilters, setShowFilters] = useState(false)
   const { toggleCompare, isComparing, count: compareCount } = useCompare()
   const { showToast } = useToast()
+  const [hoveredCardId, setHoveredCardId] = useState<number | null>(null)
 
   const neighborhoods = useMemo(() => {
     const list: string[] = []
@@ -264,9 +266,23 @@ export default function ImoveisPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05, duration: 0.5 }}
                 >
-                  {/* Image Carousel */}
-                  <div className="relative">
+                  {/* Image Carousel with YouTube Preview */}
+                  <div
+                    className="relative"
+                    onMouseEnter={() => {
+                      if (property.youtubeVideoId) setHoveredCardId(property.id)
+                    }}
+                    onMouseLeave={() => setHoveredCardId(null)}
+                  >
                     <ImageCarousel images={property.images} title={property.title} />
+
+                    {/* YouTube Video Overlay */}
+                    {property.youtubeVideoId && (
+                      <YouTubePreview
+                        videoId={property.youtubeVideoId}
+                        isHovered={hoveredCardId === property.id}
+                      />
+                    )}
 
                     {/* Badges */}
                     <span className="absolute top-4 left-4 z-10 bg-olive-600 text-white text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full">
@@ -275,6 +291,11 @@ export default function ImoveisPage() {
                     <span className="absolute top-4 right-14 z-10 bg-charcoal-800/80 text-white text-xs font-medium px-3 py-1.5 rounded-full backdrop-blur-sm">
                       {property.transaction === 'venda' ? 'Venda' : 'Aluguel'}
                     </span>
+
+                    {/* Virtual Tour Badge */}
+                    {property.youtubeVideoId && hoveredCardId !== property.id && (
+                      <VirtualTourBadge />
+                    )}
 
                     {/* Favorite */}
                     <div className="absolute top-3 right-3 z-10">
@@ -361,11 +382,11 @@ export default function ImoveisPage() {
 
                           <Link
                             href={`/imoveis/${property.slug}`}
-                            className="text-olive-600 text-sm font-medium hover:text-olive-700 transition-colors flex items-center gap-1"
+                            className="inline-flex items-center gap-1.5 px-5 py-2 bg-olive-600 text-white text-sm font-semibold rounded-lg hover:bg-olive-700 shadow-sm hover:shadow-md transition-all duration-200"
                           >
-                            Ver
+                            Ver Imovel
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                             </svg>
                           </Link>
                         </div>

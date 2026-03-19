@@ -1,9 +1,10 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState, useEffect, useCallback } from 'react'
 import { motion, useInView } from 'framer-motion'
+import Image from 'next/image'
 
-const WHATSAPP_URL = 'https://wa.me/5571999999999'
+const WHATSAPP_URL = 'https://wa.me/5571997106376'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -20,9 +21,9 @@ const fadeUp = {
 
 const cities = [
   {
-    name: 'Salvador',
-    subtitle: 'Capital',
-    description: 'Mercado diversificado',
+    name: 'Porto de Sauipe',
+    subtitle: 'Litoral Norte',
+    description: 'Imoveis de alto padrao no paraiso baiano',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
@@ -30,9 +31,9 @@ const cities = [
     ),
   },
   {
-    name: 'Feira de Santana',
-    subtitle: 'Segundo maior mercado',
-    description: 'Crescimento acelerado',
+    name: 'Salvador',
+    subtitle: 'Capital',
+    description: 'Mercado diversificado e em constante crescimento',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
@@ -40,9 +41,9 @@ const cities = [
     ),
   },
   {
-    name: 'Alagoinhas',
-    subtitle: 'Cidade em expansao',
-    description: 'Oportunidades unicas',
+    name: 'Litoral da Bahia',
+    subtitle: 'Costa dos Coqueiros',
+    description: 'Oportunidades exclusivas no litoral',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
@@ -91,6 +92,47 @@ const values = [
   },
 ]
 
+/* ------------------------------------------------------------------ */
+/*  Gold floating particles (CSS keyframes injected once)             */
+/* ------------------------------------------------------------------ */
+const particleStyles = `
+@keyframes floatParticle {
+  0%, 100% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  50% { transform: translateY(-60px) translateX(20px) scale(1.5); opacity: 0.8; }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 15px 2px rgba(212,168,67,0.25), 0 0 40px 4px rgba(212,168,67,0.10); }
+  50% { box-shadow: 0 0 25px 6px rgba(212,168,67,0.40), 0 0 60px 10px rgba(212,168,67,0.18); }
+}
+@keyframes gentleTilt {
+  0% { transform: perspective(800px) rotateY(-4deg) rotateX(2deg); }
+  25% { transform: perspective(800px) rotateY(2deg) rotateX(-3deg); }
+  50% { transform: perspective(800px) rotateY(4deg) rotateX(2deg); }
+  75% { transform: perspective(800px) rotateY(-2deg) rotateX(-2deg); }
+  100% { transform: perspective(800px) rotateY(-4deg) rotateX(2deg); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes floatShadow {
+  0%, 100% { transform: scaleX(0.85); opacity: 0.35; }
+  50% { transform: scaleX(0.75); opacity: 0.2; }
+}
+`
+
+/* Particle positions pre-computed for 12 particles */
+const particles = Array.from({ length: 12 }, (_, i) => ({
+  id: i,
+  top: `${10 + Math.random() * 80}%`,
+  left: `${5 + Math.random() * 90}%`,
+  size: 3 + Math.random() * 5,
+  delay: Math.random() * 5,
+  duration: 3 + Math.random() * 4,
+}))
+
 export default function SobrePage() {
   const storyRef = useRef(null)
   const storyInView = useInView(storyRef, { once: true, margin: '-100px' })
@@ -101,8 +143,38 @@ export default function SobrePage() {
   const ctaRef = useRef(null)
   const ctaInView = useInView(ctaRef, { once: true, margin: '-80px' })
 
+  /* ---- 3D photo tilt state ---- */
+  const photoRef = useRef<HTMLDivElement>(null)
+  const [tilt, setTilt] = useState({ x: 0, y: 0 })
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (isMobile || !photoRef.current) return
+      const rect = photoRef.current.getBoundingClientRect()
+      const x = (e.clientX - rect.left) / rect.width - 0.5   // -0.5 to 0.5
+      const y = (e.clientY - rect.top) / rect.height - 0.5
+      setTilt({ x: y * -18, y: x * 18 }) // degrees
+    },
+    [isMobile],
+  )
+
+  const handleMouseLeave = useCallback(() => {
+    setTilt({ x: 0, y: 0 })
+  }, [])
+
   return (
     <main>
+      {/* Inject particle / glow keyframes */}
+      <style dangerouslySetInnerHTML={{ __html: particleStyles }} />
+
       {/* Hero Banner */}
       <section className="relative bg-charcoal-800 pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(212,168,67,0.08)_0%,transparent_60%)]" />
@@ -127,7 +199,7 @@ export default function SobrePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
           >
-            Conheca nossa historia e paixao pelo mercado imobiliario na Bahia
+            Conheca Jeova Guedes e sua paixao pelo mercado imobiliario no litoral da Bahia
           </motion.p>
         </div>
       </section>
@@ -136,19 +208,108 @@ export default function SobrePage() {
       <section className="section-padding bg-sand-50" ref={storyRef}>
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Image Placeholder */}
+
+            {/* ===== 3D Photo Display ===== */}
             <motion.div
-              className="relative h-[400px] lg:h-[500px] rounded-2xl bg-charcoal-200 overflow-hidden flex items-center justify-center"
-              initial={{ opacity: 0, x: -40 }}
-              animate={storyInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.7 }}
+              className="relative h-[400px] lg:h-[500px] flex items-center justify-center"
+              initial={{ opacity: 0, x: -40, scale: 0.92 }}
+              animate={storyInView ? { opacity: 1, x: 0, scale: 1 } : {}}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             >
-              <svg className="w-20 h-20 text-charcoal-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a2.25 2.25 0 002.25-2.25V5.25a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v13.5a2.25 2.25 0 002.25 2.25z" />
-              </svg>
-              <div className="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-sm rounded-xl p-4">
-                <p className="font-heading text-charcoal-800 font-semibold">Sua foto profissional aqui</p>
-                <p className="text-charcoal-500 text-sm mt-1">Imagem do escritorio ou da equipe</p>
+              {/* Floating shadow beneath the card */}
+              <div
+                className="absolute bottom-2 left-[12%] right-[12%] h-8 rounded-[50%] bg-charcoal-800/30 blur-xl"
+                style={{ animation: 'floatShadow 4s ease-in-out infinite' }}
+              />
+
+              {/* Perspective wrapper */}
+              <div
+                ref={photoRef}
+                className="relative w-full h-full"
+                style={{ perspective: '1000px' }}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+              >
+                {/* The tilting card */}
+                <div
+                  className="relative w-full h-full rounded-2xl overflow-hidden"
+                  style={{
+                    transform: isMobile
+                      ? undefined
+                      : `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+                    transition: 'transform 0.15s ease-out',
+                    animation: isMobile ? 'gentleTilt 8s ease-in-out infinite' : undefined,
+                    willChange: 'transform',
+                  }}
+                >
+                  {/* Gold pulsing border/glow */}
+                  <div
+                    className="absolute -inset-[3px] rounded-2xl z-0"
+                    style={{
+                      background: 'linear-gradient(135deg, #D4A843, #b8912e, #D4A843, #e8c96a, #D4A843)',
+                      animation: 'pulseGlow 3s ease-in-out infinite',
+                    }}
+                  />
+
+                  {/* Inner card with image */}
+                  <div className="absolute inset-[3px] rounded-[14px] overflow-hidden z-10 bg-charcoal-800">
+                    <Image
+                      src="/jeova-guedes.png"
+                      alt="Jeova Guedes - Corretor de Imoveis"
+                      fill
+                      className="object-cover object-top"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      priority
+                    />
+
+                    {/* Glass reflection overlay */}
+                    <div
+                      className="absolute inset-0 pointer-events-none z-20"
+                      style={{
+                        background:
+                          'linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)',
+                      }}
+                    />
+
+                    {/* Shimmer sweep */}
+                    <div
+                      className="absolute inset-0 pointer-events-none z-20"
+                      style={{
+                        background:
+                          'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 45%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.08) 55%, transparent 100%)',
+                        backgroundSize: '200% 100%',
+                        animation: 'shimmer 6s ease-in-out infinite',
+                      }}
+                    />
+
+                    {/* Bottom gradient with name */}
+                    <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-charcoal-900/90 via-charcoal-900/50 to-transparent z-20" />
+                    <div className="absolute bottom-5 left-6 right-6 z-30">
+                      <p className="font-heading text-white text-lg font-semibold drop-shadow-lg">
+                        Jeova Guedes
+                      </p>
+                      <p className="text-gold-400 text-sm font-medium drop-shadow-md">
+                        Corretor de Imoveis &bull; CRECI-BA 022-670
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Gold floating particles */}
+                  {particles.map((p) => (
+                    <div
+                      key={p.id}
+                      className="absolute rounded-full z-30 pointer-events-none"
+                      style={{
+                        top: p.top,
+                        left: p.left,
+                        width: p.size,
+                        height: p.size,
+                        background: 'radial-gradient(circle, #D4A843 0%, rgba(212,168,67,0) 70%)',
+                        animation: `floatParticle ${p.duration}s ease-in-out ${p.delay}s infinite`,
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
             </motion.div>
 
@@ -158,39 +319,43 @@ export default function SobrePage() {
               animate={storyInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.2 }}
             >
-              <span className="text-gold-500 font-medium text-sm uppercase tracking-wider">Nossa Historia</span>
+              <span className="text-gold-500 font-medium text-sm uppercase tracking-wider">Sobre Jeova Guedes</span>
               <h2 className="font-heading text-3xl md:text-4xl text-charcoal-800 mt-3">
-                Paixao pelo mercado imobiliario da Bahia
+                Especialista em imoveis no litoral da Bahia
               </h2>
               <div className="gold-divider mt-4" />
               <div className="mt-6 space-y-4 text-charcoal-600 leading-relaxed">
                 <p>
-                  Fundada com a missao de transformar a experiencia de compra e venda de imoveis na Bahia,
-                  nossa corretora nasceu da paixao por conectar pessoas aos seus lares ideais.
+                  Com uma trajetoria solida no mercado imobiliario, Jeova Guedes e referencia na
+                  intermediacao de imoveis em Porto de Sauipe e em toda a Costa dos Coqueiros, no
+                  litoral norte da Bahia. Sua paixao pelo que faz se reflete no atendimento
+                  personalizado e no profundo conhecimento da regiao.
                 </p>
                 <p>
-                  Com anos de experiencia no mercado imobiliario baiano, construimos uma reputacao solida
-                  baseada em atendimento personalizado, transparencia e conhecimento profundo das melhores
-                  regioes de Salvador, Feira de Santana e Alagoinhas.
+                  Atuando ha mais de 10 anos no setor, Jeova construiu uma reputacao baseada em
+                  honestidade, dedicacao e resultados. Seja para quem busca uma casa de praia dos
+                  sonhos, um investimento rentavel ou o primeiro imovel da familia, ele oferece
+                  consultoria completa do inicio ao fim da negociacao.
                 </p>
                 <p>
-                  Acreditamos que encontrar o imovel perfeito vai alem de metros quadrados e localizacao.
-                  Trata-se de entender sonhos, necessidades e estilo de vida de cada cliente para oferecer
-                  opcoes que realmente fazem sentido.
+                  Seu diferencial esta na combinacao de experiencia local — conhecendo cada rua,
+                  cada condominio e cada oportunidade da regiao — com um atendimento humano e
+                  transparente que transforma a jornada de compra ou venda em uma experiencia
+                  tranquila e segura.
                 </p>
               </div>
               <div className="mt-8 flex flex-wrap gap-8">
                 <div>
                   <span className="font-heading text-3xl font-bold text-gold-500">500+</span>
-                  <p className="text-charcoal-500 text-sm mt-1">Imoveis negociados</p>
+                  <p className="text-charcoal-500 text-sm mt-1">Imoveis vendidos</p>
                 </div>
                 <div>
                   <span className="font-heading text-3xl font-bold text-gold-500">10+</span>
                   <p className="text-charcoal-500 text-sm mt-1">Anos de experiencia</p>
                 </div>
                 <div>
-                  <span className="font-heading text-3xl font-bold text-gold-500">3</span>
-                  <p className="text-charcoal-500 text-sm mt-1">Cidades atendidas</p>
+                  <span className="font-heading text-3xl font-bold text-gold-500">98%</span>
+                  <p className="text-charcoal-500 text-sm mt-1">Clientes satisfeitos</p>
                 </div>
               </div>
             </motion.div>
@@ -208,11 +373,11 @@ export default function SobrePage() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="font-heading text-3xl md:text-4xl text-charcoal-800">
-              Cidades que Atendemos
+              Regioes de Atuacao
             </h2>
             <div className="gold-divider mx-auto mt-4" />
             <p className="mt-4 text-charcoal-500 max-w-lg mx-auto">
-              Presenca estrategica nas principais cidades da Bahia para melhor atender voce
+              Presenca estrategica no litoral e nas principais cidades da Bahia
             </p>
           </motion.div>
 
@@ -248,7 +413,7 @@ export default function SobrePage() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="font-heading text-3xl md:text-4xl text-white">
-              Nossos Valores
+              Meus Valores
             </h2>
             <div className="gold-divider mx-auto mt-4" />
           </motion.div>

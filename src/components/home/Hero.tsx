@@ -575,6 +575,20 @@ export default function Hero() {
       {/* Content overlay */}
       <div className="relative z-10 h-full flex items-center justify-center px-5 md:px-10 pointer-events-none">
         <div className="max-w-5xl mx-auto text-center">
+          {/* Logo */}
+          <motion.div
+            className="flex justify-center mb-6"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <img
+              src="/logo.png"
+              alt="Jeova Guedes Imoveis"
+              className="h-20 md:h-24 w-auto brightness-0 invert drop-shadow-[0_0_20px_rgba(212,168,67,0.4)]"
+            />
+          </motion.div>
+
           {/* Animated gold divider */}
           <motion.div
             className="gold-divider mx-auto mb-6"

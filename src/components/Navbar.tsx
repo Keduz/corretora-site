@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useFavorites } from './FavoritesContext'
 
@@ -9,6 +10,7 @@ const navLinks = [
   { href: '/', label: 'Inicio' },
   { href: '/imoveis', label: 'Imoveis' },
   { href: '/servicos', label: 'Servicos' },
+  { href: '/portais', label: 'Portais' },
   { href: '/sobre', label: 'Sobre' },
   { href: '/blog', label: 'Blog' },
   { href: '/contato', label: 'Contato' },
@@ -37,13 +39,18 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-olive-500 to-olive-600 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-              <span className="text-white font-heading font-bold text-lg">C</span>
-            </div>
+            <Image
+              src="/logo.png"
+              alt="Jeova Guedes Imoveis"
+              width={48}
+              height={48}
+              className="h-12 w-auto group-hover:scale-105 transition-transform duration-300"
+              priority
+            />
             <div>
-              <span className="font-heading text-xl font-bold text-charcoal-800">Corretora</span>
+              <span className="font-heading text-xl font-bold text-charcoal-800">Jeova Guedes</span>
               <span className="block text-[10px] uppercase tracking-[0.2em] text-gold-500 font-medium -mt-1">
-                Imoveis de Luxo
+                Corretor de Imoveis
               </span>
             </div>
           </Link>
@@ -78,7 +85,7 @@ export default function Navbar() {
             </Link>
 
             <a
-              href="https://wa.me/5571999999999"
+              href="https://wa.me/5571997106376"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-whatsapp !px-6 !py-2.5 text-sm"
@@ -153,7 +160,7 @@ export default function Navbar() {
                 Favoritos {favCount > 0 && `(${favCount})`}
               </Link>
               <a
-                href="https://wa.me/5571999999999"
+                href="https://wa.me/5571997106376"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-whatsapp w-full justify-center text-sm mt-4"
