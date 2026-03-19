@@ -40,37 +40,25 @@ export default function Navbar() {
           : 'bg-white/90 backdrop-blur-sm'
       } border-b border-sand-200/60`}
     >
-      {/* Mobile CRECI top bar */}
-      <div className="md:hidden bg-olive-600 text-white flex items-center justify-center gap-1.5 py-1">
-        <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-        </svg>
-        <span className="text-[10px] uppercase tracking-[0.15em] font-bold">Corretor Credenciado &bull; CRECI-BA 022-670</span>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 md:px-10">
-        <div className="flex items-center justify-between h-14 md:h-20">
+      <div className="max-w-7xl mx-auto px-5 md:px-10">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 md:gap-3 group min-w-0">
+          <Link href="/" className="flex items-center gap-3 group">
             <Image
               src="/logo.png"
               alt="Jeová Guedes Imoveis"
               width={48}
               height={48}
-              className="h-9 md:h-12 w-auto shrink-0 group-hover:scale-105 transition-transform duration-300"
+              className="h-12 w-auto group-hover:scale-105 transition-transform duration-300"
               priority
             />
-            <div className="min-w-0">
-              <span className="font-heading text-sm md:text-xl font-bold text-charcoal-800 block truncate leading-tight">Jeová Guedes</span>
-              <span className="hidden md:block text-[10px] uppercase tracking-[0.15em] text-gold-500 font-medium -mt-1">
+            <div>
+              <span className="font-heading text-xl font-bold text-charcoal-800">Jeová Guedes</span>
+              <span className="block text-[10px] uppercase tracking-[0.15em] text-gold-500 font-medium -mt-1">
                 Corretor de Imoveis
               </span>
-              {/* CRECI badge - desktop only (mobile has top bar) */}
-              <span className="hidden md:inline-flex items-center gap-1 mt-0.5 px-1.5 py-[1px] rounded-sm bg-olive-500/10 border border-olive-500/20">
-                <svg className="w-2.5 h-2.5 text-olive-600 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-                </svg>
-                <span className="text-[9px] uppercase tracking-[0.1em] text-olive-600 font-bold whitespace-nowrap">CRECI-BA 022-670</span>
+              <span className="block text-[9px] uppercase tracking-[0.15em] text-charcoal-400 font-medium -mt-0.5">
+                CRECI-BA 022-670
               </span>
             </div>
           </Link>
