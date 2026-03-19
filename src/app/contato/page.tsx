@@ -66,25 +66,18 @@ export default function ContatoPage() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const phone = '\u{1F4DE}'
-    const person = '\u{1F464}'
-    const email = '\u{1F4E7}'
-    const mobile = '\u{1F4F1}'
-    const city = '\u{1F3D9}\uFE0F'
-    const chat = '\u{1F4AC}'
-    const pray = '\u{1F64F}'
     const message = [
-      `${phone} *Ola! Vim pelo site da Jeova Guedes Imoveis*`,
+      '📞 *Ola! Vim pelo site da Jeova Guedes Imoveis*',
       '',
-      `${person} *Nome:* ${formData.nome}`,
-      `${email} *E-mail:* ${formData.email}`,
-      `${mobile} *Telefone:* ${formData.telefone}`,
-      `${city} *Cidade:* ${formData.cidade}`,
+      '👤 *Nome:* ' + formData.nome,
+      '📧 *E-mail:* ' + formData.email,
+      '📱 *Telefone:* ' + formData.telefone,
+      '🏙️ *Cidade:* ' + formData.cidade,
       '',
-      `${chat} *Mensagem:*`,
+      '💬 *Mensagem:*',
       formData.mensagem,
       '',
-      `Aguardo retorno! ${pray}`,
+      'Aguardo retorno! 🙏'
     ].join('\n')
     window.open(getWhatsAppUrlWithMsg(message), '_blank')
   }

@@ -5,20 +5,17 @@ import { motion, useInView } from 'framer-motion'
 import { getWhatsAppUrlWithMsg } from '@/utils/whatsapp'
 
 function buildServiceMsg(title: string) {
-  const briefcase = '\u{1F4BC}'
-  const tag = '\u{1F3F7}\uFE0F'
-  const clipboard = '\u{1F4CB}'
-  const pray = '\u{1F64F}'
-  return [
-    `${briefcase} *Ola! Vim pelo site da Jeova Guedes Imoveis*`,
+  const mensagem = [
+    '💼 *Ola! Vim pelo site da Jeova Guedes Imoveis*',
     '',
-    `${tag} *Servico de interesse:*`,
+    '🏷️ *Servico de interesse:*',
     title,
     '',
-    `${clipboard} Gostaria de saber mais detalhes sobre este servico.`,
+    '📋 Gostaria de saber mais detalhes sobre este servico.',
     '',
-    `Aguardo retorno! ${pray}`,
+    'Aguardo retorno! 🙏'
   ].join('\n')
+  return mensagem
 }
 
 const services = [
