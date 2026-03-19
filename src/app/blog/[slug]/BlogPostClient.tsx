@@ -8,116 +8,14 @@ import { type BlogPost, getPostBySlug, getPublishedPosts, formatDate } from '@/d
 
 const WHATSAPP_URL = 'https://wa.me/5571997106376'
 
-/* YouTube embed component */
-function YouTubeEmbed({ videoId }: { videoId: string }) {
-  return (
-    <div className="my-8 rounded-2xl overflow-hidden shadow-lg bg-charcoal-900 aspect-video">
-      <iframe
-        src={`https://www.youtube.com/embed/${videoId}`}
-        title="Video"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen
-        className="w-full h-full"
-      />
-    </div>
-  )
-}
-
-/* Content image component */
-function ContentImage({ src, alt }: { src: string; alt: string }) {
-  return (
-    <figure className="my-8">
-      <img
-        src={src}
-        alt={alt}
-        className="w-full rounded-2xl shadow-md object-cover max-h-[480px]"
-      />
-      {alt && alt !== 'img' && (
-        <figcaption className="text-center text-xs text-charcoal-400 mt-3 italic">{alt}</figcaption>
-      )}
-    </figure>
-  )
-}
-
-/* Markdown-ish renderer with YouTube and image support */
+/* Renders blog content - supports HTML (from TipTap editor) */
 function RenderContent({ content }: { content: string }) {
-  const lines = content.split('\n')
-  const elements: React.ReactNode[] = []
-  let listItems: string[] = []
-
-  const flushList = () => {
-    if (listItems.length > 0) {
-      elements.push(
-        <ul key={`list-${elements.length}`} className="list-disc list-inside space-y-1.5 text-charcoal-600 leading-relaxed mb-6 pl-2">
-          {listItems.map((item, i) => <li key={i} dangerouslySetInnerHTML={{ __html: parseLine(item) }} />)}
-        </ul>
-      )
-      listItems = []
-    }
-  }
-
-  const parseLine = (text: string) => {
-    return text
-      .replace(/\*\*(.+?)\*\*/g, '<strong class="text-charcoal-800 font-semibold">$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-  }
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]
-
-    // YouTube embed: @youtube(VIDEO_ID)
-    const ytMatch = line.match(/^@youtube\(([^)]+)\)$/)
-    if (ytMatch) {
-      flushList()
-      elements.push(<YouTubeEmbed key={i} videoId={ytMatch[1]} />)
-      continue
-    }
-
-    // Image: ![alt](url)
-    const imgMatch = line.match(/^!\[([^\]]*)\]\(([^)]+)\)$/)
-    if (imgMatch) {
-      flushList()
-      elements.push(<ContentImage key={i} src={imgMatch[2]} alt={imgMatch[1] || 'img'} />)
-      continue
-    }
-
-    if (line.startsWith('## ')) {
-      flushList()
-      elements.push(
-        <h2 key={i} className="font-heading text-2xl text-charcoal-800 mt-10 mb-4">{line.slice(3)}</h2>
-      )
-    } else if (line.startsWith('### ')) {
-      flushList()
-      elements.push(
-        <h3 key={i} className="font-heading text-xl text-charcoal-800 mt-8 mb-3">{line.slice(4)}</h3>
-      )
-    } else if (line.startsWith('- ')) {
-      listItems.push(line.slice(2))
-    } else if (line.startsWith('---')) {
-      flushList()
-      elements.push(<hr key={i} className="my-8 border-sand-200" />)
-    } else if (line.trim() === '') {
-      flushList()
-    } else {
-      flushList()
-      const num = line.match(/^(\d+)\.\s(.+)/)
-      if (num) {
-        elements.push(
-          <p key={i} className="text-charcoal-600 leading-relaxed mb-3 pl-2">
-            <strong className="text-olive-600">{num[1]}.</strong>{' '}
-            <span dangerouslySetInnerHTML={{ __html: parseLine(num[2]) }} />
-          </p>
-        )
-      } else {
-        elements.push(
-          <p key={i} className="text-charcoal-600 leading-relaxed mb-4" dangerouslySetInnerHTML={{ __html: parseLine(line) }} />
-        )
-      }
-    }
-  }
-  flushList()
-
-  return <>{elements}</>
+  return (
+    <div
+      className="blog-rendered"
+      dangerouslySetInnerHTML={{ __html: content }}
+    />
+  )
 }
 
 export default function BlogPostClient() {

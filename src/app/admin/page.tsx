@@ -3,7 +3,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { properties, formatPrice, type Property } from '@/data/properties'
 import { portais, type Portal } from '@/data/portais'
-import { type BlogPost, defaultPosts, blogCategories, BLOG_STORAGE_KEY, formatDate } from '@/data/blog'
+import { type BlogPost, defaultPosts, blogCategories, BLOG_STORAGE_KEY, BLOG_VERSION_KEY, BLOG_CURRENT_VERSION, formatDate } from '@/data/blog'
+import dynamic from 'next/dynamic'
+
+const BlogEditor = dynamic(() => import('@/components/BlogEditor'), { ssr: false })
 
 const STORAGE_KEY = 'corretora-admin-properties'
 
@@ -962,6 +965,7 @@ export default function AdminPage() {
   const saveBlogPosts = useCallback((posts: BlogPost[]) => {
     setBlogPosts(posts)
     localStorage.setItem(BLOG_STORAGE_KEY, JSON.stringify(posts))
+    localStorage.setItem(BLOG_VERSION_KEY, String(BLOG_CURRENT_VERSION))
   }, [])
 
   const handleSavePost = useCallback((post: BlogPost) => {
@@ -1791,23 +1795,13 @@ export default function AdminPage() {
                           placeholder="mercado, bahia, investimento"
                         />
                       </div>
-                      {/* Content */}
+                      {/* Content - Rich Text Editor */}
                       <div>
-                        <label className="block text-xs font-semibold text-charcoal-500 mb-1.5">CONTEUDO (Markdown simplificado)</label>
-                        <textarea
-                          value={editingPost.content}
-                          onChange={e => setEditingPost({ ...editingPost, content: e.target.value })}
-                          className="w-full px-4 py-3 border-2 border-sand-200 rounded-xl bg-sand-50 text-charcoal-800 outline-none focus:border-olive-500 h-64 resize-y font-mono text-sm"
-                          placeholder="## Titulo da secao\n\nParagrafo aqui...\n\n- Item de lista\n- Outro item"
+                        <label className="block text-xs font-semibold text-charcoal-500 mb-1.5">CONTEUDO</label>
+                        <BlogEditor
+                          content={editingPost.content}
+                          onChange={(html) => setEditingPost({ ...editingPost, content: html })}
                         />
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          <span className="text-[10px] text-charcoal-400 bg-sand-100 px-2 py-0.5 rounded">## Titulo</span>
-                          <span className="text-[10px] text-charcoal-400 bg-sand-100 px-2 py-0.5 rounded">### Subtitulo</span>
-                          <span className="text-[10px] text-charcoal-400 bg-sand-100 px-2 py-0.5 rounded">- Lista</span>
-                          <span className="text-[10px] text-charcoal-400 bg-sand-100 px-2 py-0.5 rounded">**negrito**</span>
-                          <span className="text-[10px] text-charcoal-400 bg-sand-100 px-2 py-0.5 rounded">![legenda](url-da-imagem)</span>
-                          <span className="text-[10px] text-charcoal-400 bg-sand-100 px-2 py-0.5 rounded">@youtube(ID_DO_VIDEO)</span>
-                        </div>
                       </div>
                       {/* Featured + Status */}
                       <div className="flex items-center gap-6">
