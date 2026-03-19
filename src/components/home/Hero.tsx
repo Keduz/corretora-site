@@ -664,20 +664,9 @@ export default function Hero() {
             Nossos Im&oacute;veis
           </motion.h1>
 
-          <motion.p
-            className="mt-4 text-lg max-w-xl mx-auto"
-            style={{ color: '#c4b89a' }}
-            custom={1}
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-          >
-            Encontre o im&oacute;vel ideal em Salvador, Feira de Santana e Alagoinhas
-          </motion.p>
-
           <motion.div
             className="mt-8"
-            custom={2}
+            custom={1}
             initial="hidden"
             animate="visible"
             variants={fadeUp}
