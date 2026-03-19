@@ -610,37 +610,37 @@ export default function Hero() {
               />
               {/* Inner content */}
               <div
-                className="relative flex items-center gap-4 px-6 md:px-8 py-3 md:py-4 rounded-2xl backdrop-blur-xl"
+                className="relative flex items-center gap-2.5 md:gap-4 px-4 md:px-8 py-2.5 md:py-4 rounded-2xl backdrop-blur-xl"
                 style={{ background: 'linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(30,40,42,0.95) 100%)' }}
               >
                 {/* Shield icon */}
                 <div className="relative shrink-0">
                   <div
-                    className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center"
+                    className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center"
                     style={{
                       background: 'linear-gradient(135deg, #2E9EA6 0%, #4CB8BF 100%)',
                       boxShadow: '0 4px 15px rgba(46,158,166,0.4)',
                     }}
                   >
-                    <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
                     </svg>
                   </div>
                 </div>
                 {/* Text */}
                 <div className="flex flex-col leading-tight">
-                  <span className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-[#4CB8BF] font-semibold">Corretor Credenciado</span>
-                  <span className="text-base md:text-lg font-bold tracking-wider text-white">CRECI-BA 022-670</span>
+                  <span className="text-[9px] md:text-[11px] uppercase tracking-[0.15em] md:tracking-[0.2em] text-[#4CB8BF] font-semibold">Corretor Credenciado</span>
+                  <span className="text-sm md:text-lg font-bold tracking-wide md:tracking-wider text-white">CRECI-BA 022-670</span>
                 </div>
                 {/* Verified tag */}
                 <div
-                  className="ml-2 px-3 py-1 rounded-full"
+                  className="px-2 md:px-3 py-0.5 md:py-1 rounded-full"
                   style={{
                     background: 'linear-gradient(135deg, rgba(46,158,166,0.2) 0%, rgba(76,184,191,0.1) 100%)',
                     border: '1px solid rgba(76,184,191,0.3)',
                   }}
                 >
-                  <span className="text-[10px] md:text-[11px] uppercase tracking-[0.15em] text-[#4CB8BF] font-bold">Verificado</span>
+                  <span className="text-[8px] md:text-[11px] uppercase tracking-[0.1em] md:tracking-[0.15em] text-[#4CB8BF] font-bold">Verificado</span>
                 </div>
               </div>
             </div>
