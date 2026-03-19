@@ -55,7 +55,7 @@ export default function Navbar() {
             <div>
               <span className="font-heading text-xl font-bold text-charcoal-800">Jeová Guedes</span>
               <span className="block text-[10px] uppercase tracking-[0.2em] text-gold-500 font-medium -mt-1">
-                Corretor de Imoveis
+                Corretor de Imoveis &bull; CRECI-BA 022-670
               </span>
             </div>
           </Link>
