@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useMemo, useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react'
+import { motion, useInView, AnimatePresence } from 'framer-motion'
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell,
@@ -200,7 +200,7 @@ export default function SimuladorPage() {
   const [useFGTS, setUseFGTS] = useState(false)
   const [fgtsValue, setFgtsValue] = useState('0,00')
   const [showResults, setShowResults] = useState(false)
-  const resultsRef = useRef<HTMLDivElement>(null)
+  const modalRef = useRef<HTMLDivElement>(null)
 
   const propVal = parseBRL(propertyValue)
   const downVal = parseBRL(downPayment)
@@ -246,9 +246,27 @@ export default function SimuladorPage() {
   const handleSimulate = () => {
     if (errors.length === 0) {
       setShowResults(true)
-      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
     }
   }
+
+  const closeModal = useCallback(() => setShowResults(false), [])
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (showResults) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [showResults])
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeModal() }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [closeModal])
 
   return (
     <main>
@@ -349,120 +367,181 @@ export default function SimuladorPage() {
         </div>
       </section>
 
-      {/* Results */}
-      {showResults && (
-        <section ref={resultsRef} className="section-padding bg-charcoal-800">
-          <div className="max-w-3xl mx-auto">
+      {/* ═══ Results Modal with Overlay ═══ */}
+      <AnimatePresence>
+        {showResults && (
+          <>
+            {/* Dark overlay */}
+            <motion.div
+              className="fixed inset-0 z-[60] bg-charcoal-900/80 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              onClick={closeModal}
+            />
 
-            {/* Bank comparison */}
-            <h2 className="font-heading text-2xl text-white mb-4">Comparativo por Banco</h2>
-            <div className="gold-divider mb-8" />
-            <div className="flex flex-col gap-3 mb-10">
-              {BANKS.map((b, i) => (
-                <BankCard
-                  key={i} bank={b} principal={principal} months={term}
-                  income={incomeVal} isSelected={selectedBank === i}
-                  onClick={() => setSelectedBank(i)}
-                />
-              ))}
-            </div>
-
-            {/* Detailed view */}
-            <div className="bg-white rounded-2xl p-5 md:p-6 shadow-lg mb-6">
-              <div className="flex items-center gap-2.5 mb-5">
-                <div className="w-1 h-7 rounded-sm" style={{ background: bank.color }} />
-                <h3 className="text-lg font-bold text-charcoal-800">{bank.name} &mdash; Detalhamento</h3>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                {[
-                  { label: 'SAC \u2014 1a Parcela', value: formatBRL(sac.firstPayment), sub: `Ultima: ${formatBRL(sac.lastPayment)}`, bg: C.olive50, color: C.olive600 },
-                  { label: 'PRICE \u2014 Parcela Fixa', value: formatBRL(price.firstPayment), sub: 'Todas iguais', bg: C.gold50, color: C.gold500 },
-                  { label: 'Total Juros SAC', value: formatBRL(sac.totalInterest), sub: `Total pago: ${formatBRL(sac.totalPaid)}`, bg: C.olive50, color: C.olive600 },
-                  { label: 'Total Juros PRICE', value: formatBRL(price.totalInterest), sub: `Total pago: ${formatBRL(price.totalPaid)}`, bg: C.gold50, color: C.gold500 },
-                ].map((item, i) => (
-                  <div key={i} className="rounded-xl p-3.5" style={{ background: item.bg }}>
-                    <div className="text-[10px] font-bold tracking-wider mb-1" style={{ color: item.color }}>{item.label}</div>
-                    <div className="text-lg font-extrabold text-charcoal-900">{item.value}</div>
-                    <div className="text-[11px] text-charcoal-400 mt-0.5">{item.sub}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Savings callout */}
-              {sac.totalPaid < price.totalPaid && (
-                <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-3 mb-5 text-center">
-                  <span className="text-sm text-emerald-800 font-semibold">
-                    Com SAC voce economiza <strong>{formatBRL(price.totalPaid - sac.totalPaid)}</strong> em juros comparado ao PRICE
-                  </span>
-                </div>
-              )}
-
-              {/* Line chart */}
-              <h4 className="text-sm font-bold text-charcoal-500 mb-2.5">Evolucao das Parcelas</h4>
-              <div className="w-full h-64">
-                <ResponsiveContainer>
-                  <LineChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={C.sand200} />
-                    <XAxis dataKey="month" tick={{ fontSize: 10, fill: C.sand300 }} />
-                    <YAxis tick={{ fontSize: 10, fill: C.sand300 }} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`} />
-                    <Tooltip content={<ChartTooltip />} />
-                    <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <Line type="monotone" dataKey="SAC" stroke={C.olive500} strokeWidth={2.5} dot={false} />
-                    <Line type="monotone" dataKey="PRICE" stroke={C.gold400} strokeWidth={2.5} dot={false} strokeDasharray="6 3" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Bar chart - Interest comparison */}
-            <div className="bg-white rounded-2xl p-5 md:p-6 shadow-lg mb-6">
-              <h4 className="text-sm font-bold text-charcoal-500 mb-1">Total de Juros por Banco (em milhares R$)</h4>
-              <p className="text-[11px] text-charcoal-300 mb-4">Compare quanto cada banco cobra de juros ao longo do financiamento</p>
-              <div className="w-full h-60">
-                <ResponsiveContainer>
-                  <BarChart data={comparisonData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={C.sand200} />
-                    <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#7D868A' }} />
-                    <YAxis tick={{ fontSize: 10, fill: C.sand300 }} tickFormatter={(v: number) => `${v}k`} />
-                    <Tooltip formatter={(v) => [`R$ ${v}k`, '']} />
-                    <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <Bar dataKey="totalSAC" name="Juros SAC" radius={[6, 6, 0, 0] as [number, number, number, number]}>
-                      {comparisonData.map((entry, i) => <Cell key={i} fill={entry.color} opacity={0.7} />)}
-                    </Bar>
-                    <Bar dataKey="totalPRICE" name="Juros PRICE" radius={[6, 6, 0, 0] as [number, number, number, number]}>
-                      {comparisonData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Disclaimer */}
-            <div className="rounded-xl p-4 border border-white/10 bg-white/5">
-              <p className="text-charcoal-300 text-[11px] leading-relaxed">
-                <strong className="text-sand-300">Aviso importante:</strong> Esta simulacao e apenas uma estimativa com fins informativos. Os valores reais podem variar conforme analise de credito, relacionamento com o banco, seguros obrigatorios (MIP e DFI), taxas administrativas e CET. Taxas de juros sao aproximadas e sujeitas a alteracao. Consulte a instituicao financeira para valores oficiais. A parcela nao deve comprometer mais de 30% da renda bruta familiar.
-              </p>
-            </div>
-
-            {/* CTA WhatsApp */}
-            <div className="mt-10 text-center">
-              <p className="text-sand-300 text-sm mb-4">Gostou da simulacao? Fale com um especialista!</p>
-              <a
-                href="https://wa.me/5571997106376?text=Ol%C3%A1!%20Fiz%20uma%20simula%C3%A7%C3%A3o%20no%20site%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-whatsapp text-lg"
+            {/* Modal container */}
+            <motion.div
+              className="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto py-6 px-3 md:py-10 md:px-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={(e) => { if (e.target === e.currentTarget) closeModal() }}
+            >
+              <motion.div
+                ref={modalRef}
+                className="relative w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl"
+                style={{ background: C.charcoal800 }}
+                initial={{ opacity: 0, y: 60, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 40, scale: 0.97 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                onClick={(e) => e.stopPropagation()}
               >
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                </svg>
-                Falar com Especialista
-              </a>
-            </div>
-          </div>
-        </section>
-      )}
+                {/* Modal header with close button */}
+                <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-white/10" style={{ background: C.olive900 }}>
+                  <div>
+                    <h2 className="font-heading text-xl md:text-2xl text-white">Resultado da Simulacao</h2>
+                    <p className="text-olive-300 text-xs mt-0.5">
+                      {formatBRL(principal)} em {effectiveTerm / 12} anos
+                    </p>
+                  </div>
+                  <button
+                    onClick={closeModal}
+                    className="w-10 h-10 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors text-white"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Modal body */}
+                <div className="p-5 md:p-8 space-y-6">
+
+                  {/* Bank comparison */}
+                  <div>
+                    <h3 className="text-white font-semibold text-sm mb-1 tracking-wide uppercase">Comparativo por Banco</h3>
+                    <div className="gold-divider mb-4" />
+                    <div className="flex flex-col gap-3">
+                      {BANKS.map((b, i) => (
+                        <BankCard
+                          key={i} bank={b} principal={principal} months={term}
+                          income={incomeVal} isSelected={selectedBank === i}
+                          onClick={() => setSelectedBank(i)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Detailed view */}
+                  <div className="bg-white rounded-2xl p-5 md:p-6">
+                    <div className="flex items-center gap-2.5 mb-5">
+                      <div className="w-1 h-7 rounded-sm" style={{ background: bank.color }} />
+                      <h3 className="text-lg font-bold text-charcoal-800">{bank.name} &mdash; Detalhamento</h3>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 mb-5">
+                      {[
+                        { label: 'SAC \u2014 1a Parcela', value: formatBRL(sac.firstPayment), sub: `Ultima: ${formatBRL(sac.lastPayment)}`, bg: C.olive50, color: C.olive600 },
+                        { label: 'PRICE \u2014 Parcela Fixa', value: formatBRL(price.firstPayment), sub: 'Todas iguais', bg: C.gold50, color: C.gold500 },
+                        { label: 'Total Juros SAC', value: formatBRL(sac.totalInterest), sub: `Total pago: ${formatBRL(sac.totalPaid)}`, bg: C.olive50, color: C.olive600 },
+                        { label: 'Total Juros PRICE', value: formatBRL(price.totalInterest), sub: `Total pago: ${formatBRL(price.totalPaid)}`, bg: C.gold50, color: C.gold500 },
+                      ].map((item, i) => (
+                        <div key={i} className="rounded-xl p-3.5" style={{ background: item.bg }}>
+                          <div className="text-[10px] font-bold tracking-wider mb-1" style={{ color: item.color }}>{item.label}</div>
+                          <div className="text-lg font-extrabold text-charcoal-900">{item.value}</div>
+                          <div className="text-[11px] text-charcoal-400 mt-0.5">{item.sub}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Savings callout */}
+                    {sac.totalPaid < price.totalPaid && (
+                      <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-3 mb-5 text-center">
+                        <span className="text-sm text-emerald-800 font-semibold">
+                          Com SAC voce economiza <strong>{formatBRL(price.totalPaid - sac.totalPaid)}</strong> em juros comparado ao PRICE
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Line chart */}
+                    <h4 className="text-sm font-bold text-charcoal-500 mb-2.5">Evolucao das Parcelas</h4>
+                    <div className="w-full h-64">
+                      <ResponsiveContainer>
+                        <LineChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke={C.sand200} />
+                          <XAxis dataKey="month" tick={{ fontSize: 10, fill: C.sand300 }} />
+                          <YAxis tick={{ fontSize: 10, fill: C.sand300 }} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`} />
+                          <Tooltip content={<ChartTooltip />} />
+                          <Legend wrapperStyle={{ fontSize: 12 }} />
+                          <Line type="monotone" dataKey="SAC" stroke={C.olive500} strokeWidth={2.5} dot={false} />
+                          <Line type="monotone" dataKey="PRICE" stroke={C.gold400} strokeWidth={2.5} dot={false} strokeDasharray="6 3" />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Bar chart - Interest comparison */}
+                  <div className="bg-white rounded-2xl p-5 md:p-6">
+                    <h4 className="text-sm font-bold text-charcoal-500 mb-1">Total de Juros por Banco (em milhares R$)</h4>
+                    <p className="text-[11px] text-charcoal-300 mb-4">Compare quanto cada banco cobra de juros ao longo do financiamento</p>
+                    <div className="w-full h-60">
+                      <ResponsiveContainer>
+                        <BarChart data={comparisonData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke={C.sand200} />
+                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#7D868A' }} />
+                          <YAxis tick={{ fontSize: 10, fill: C.sand300 }} tickFormatter={(v: number) => `${v}k`} />
+                          <Tooltip formatter={(v) => [`R$ ${v}k`, '']} />
+                          <Legend wrapperStyle={{ fontSize: 12 }} />
+                          <Bar dataKey="totalSAC" name="Juros SAC" radius={[6, 6, 0, 0] as [number, number, number, number]}>
+                            {comparisonData.map((entry, i) => <Cell key={i} fill={entry.color} opacity={0.7} />)}
+                          </Bar>
+                          <Bar dataKey="totalPRICE" name="Juros PRICE" radius={[6, 6, 0, 0] as [number, number, number, number]}>
+                            {comparisonData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Disclaimer */}
+                  <div className="rounded-xl p-4 border border-white/10 bg-white/5">
+                    <p className="text-charcoal-300 text-[11px] leading-relaxed">
+                      <strong className="text-sand-300">Aviso importante:</strong> Esta simulacao e apenas uma estimativa com fins informativos. Os valores reais podem variar conforme analise de credito, relacionamento com o banco, seguros obrigatorios (MIP e DFI), taxas administrativas e CET. Taxas de juros sao aproximadas e sujeitas a alteracao. Consulte a instituicao financeira para valores oficiais. A parcela nao deve comprometer mais de 30% da renda bruta familiar.
+                    </p>
+                  </div>
+
+                  {/* CTA WhatsApp */}
+                  <div className="text-center pt-2 pb-4">
+                    <p className="text-sand-300 text-sm mb-4">Gostou da simulacao? Fale com um especialista!</p>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                      <a
+                        href="https://wa.me/5571997106376?text=Ol%C3%A1!%20Fiz%20uma%20simula%C3%A7%C3%A3o%20no%20site%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-whatsapp"
+                      >
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                        </svg>
+                        Falar com Especialista
+                      </a>
+                      <button
+                        onClick={closeModal}
+                        className="btn-outline !py-3"
+                      >
+                        Nova Simulacao
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </main>
   )
 }
