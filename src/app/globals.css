@@ -80,6 +80,18 @@ body {
   100% { background-position: 200% 0; }
 }
 
+/* CRECI badge glow pulse */
+@keyframes creci-glow {
+  0%, 100% { box-shadow: 0 0 15px rgba(46,158,166,0.2), 0 0 30px rgba(46,158,166,0.05); }
+  50% { box-shadow: 0 0 25px rgba(46,158,166,0.35), 0 0 50px rgba(46,158,166,0.1); }
+}
+
+/* Rotating border for CRECI */
+@keyframes spin-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* Hide scrollbar for carousels */
 .scrollbar-hide {
   -ms-overflow-style: none;

@@ -592,36 +592,57 @@ export default function Hero() {
           {/* CRECI Badge */}
           <motion.div
             className="flex justify-center mb-6"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.35, ease: [0.22, 1, 0.36, 1] }}
           >
             <div
-              className="relative inline-flex items-center gap-3 px-6 py-2.5 rounded-full backdrop-blur-md overflow-hidden"
-              style={{
-                background: 'linear-gradient(135deg, rgba(46,158,166,0.15) 0%, rgba(76,184,191,0.08) 100%)',
-                border: '1px solid rgba(46,158,166,0.35)',
-                boxShadow: '0 0 20px rgba(46,158,166,0.15), inset 0 1px 0 rgba(255,255,255,0.05)',
-              }}
+              className="relative rounded-2xl p-[1px] overflow-hidden"
+              style={{ animation: 'creci-glow 3s ease-in-out infinite' }}
             >
-              {/* Shimmer effect */}
+              {/* Animated gradient border */}
               <div
-                className="absolute inset-0 pointer-events-none"
+                className="absolute inset-[-50%] pointer-events-none"
                 style={{
-                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 45%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 55%, transparent 100%)',
-                  backgroundSize: '200% 100%',
-                  animation: 'shimmer 4s ease-in-out infinite',
+                  background: 'conic-gradient(from 0deg, transparent 0%, #2E9EA6 25%, transparent 50%, #4CB8BF 75%, transparent 100%)',
+                  animation: 'spin-slow 6s linear infinite',
                 }}
               />
-              <svg className="w-4 h-4 text-[#4CB8BF]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-              </svg>
-              <div className="flex flex-col items-start leading-tight">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-medium">Corretor Credenciado</span>
-                <span className="text-sm font-bold tracking-wider text-white">CRECI-BA 022-670</span>
+              {/* Inner content */}
+              <div
+                className="relative flex items-center gap-4 px-6 md:px-8 py-3 md:py-4 rounded-2xl backdrop-blur-xl"
+                style={{ background: 'linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(30,40,42,0.95) 100%)' }}
+              >
+                {/* Shield icon */}
+                <div className="relative shrink-0">
+                  <div
+                    className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center"
+                    style={{
+                      background: 'linear-gradient(135deg, #2E9EA6 0%, #4CB8BF 100%)',
+                      boxShadow: '0 4px 15px rgba(46,158,166,0.4)',
+                    }}
+                  >
+                    <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                    </svg>
+                  </div>
+                </div>
+                {/* Text */}
+                <div className="flex flex-col leading-tight">
+                  <span className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-[#4CB8BF] font-semibold">Corretor Credenciado</span>
+                  <span className="text-base md:text-lg font-bold tracking-wider text-white">CRECI-BA 022-670</span>
+                </div>
+                {/* Verified tag */}
+                <div
+                  className="ml-2 px-3 py-1 rounded-full"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(46,158,166,0.2) 0%, rgba(76,184,191,0.1) 100%)',
+                    border: '1px solid rgba(76,184,191,0.3)',
+                  }}
+                >
+                  <span className="text-[10px] md:text-[11px] uppercase tracking-[0.15em] text-[#4CB8BF] font-bold">Verificado</span>
+                </div>
               </div>
-              <div className="w-px h-5 bg-white/10" />
-              <span className="text-[10px] uppercase tracking-[0.15em] text-[#4CB8BF] font-semibold">Verificado</span>
             </div>
           </motion.div>
 
