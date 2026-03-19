@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { properties, formatPrice, type Property } from '@/data/properties'
 import { portais, type Portal } from '@/data/portais'
+import { type BlogPost, defaultPosts, blogCategories, BLOG_STORAGE_KEY, formatDate } from '@/data/blog'
 
 const STORAGE_KEY = 'corretora-admin-properties'
 
@@ -39,7 +40,7 @@ const statusColors: Record<string, string> = {
 
 const PORTAIS_STORAGE_KEY = 'corretora-admin-portais'
 
-type NavSection = 'dashboard' | 'imoveis' | 'portais' | 'configuracoes'
+type NavSection = 'dashboard' | 'imoveis' | 'blog' | 'portais' | 'configuracoes'
 
 type PortalConfig = {
   apiKey: string
@@ -207,6 +208,15 @@ function Sidebar({
             strokeLinejoin="round"
             d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205l3 1m1.5.5l-1.5-.5M6.75 7.364V3h-3v18m3-13.636l10.5-3.819"
           />
+        </svg>
+      ),
+    },
+    {
+      key: 'blog' as NavSection,
+      label: 'Blog',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
         </svg>
       ),
     },
@@ -871,6 +881,11 @@ export default function AdminPage() {
   const [portalConfigs, setPortalConfigs] = useState<Record<number, PortalConfig>>({})
   const [configuringPortal, setConfiguringPortal] = useState<number | null>(null)
   const [testingConnection, setTestingConnection] = useState<number | null>(null)
+  // Blog state
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>(defaultPosts)
+  const [editingPost, setEditingPost] = useState<BlogPost | null>(null)
+  const [isCreatingPost, setIsCreatingPost] = useState(false)
+  const [deletingPost, setDeletingPost] = useState<BlogPost | null>(null)
 
   useEffect(() => {
     if (sessionStorage.getItem('admin_auth') === 'true') {
@@ -932,6 +947,44 @@ export default function AdminPage() {
       return updated
     })
   }, [])
+
+  // Load blog posts from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem(BLOG_STORAGE_KEY)
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed) && parsed.length > 0) setBlogPosts(parsed)
+      } catch { /* ignore */ }
+    }
+  }, [])
+
+  const saveBlogPosts = useCallback((posts: BlogPost[]) => {
+    setBlogPosts(posts)
+    localStorage.setItem(BLOG_STORAGE_KEY, JSON.stringify(posts))
+  }, [])
+
+  const handleSavePost = useCallback((post: BlogPost) => {
+    const isNew = !blogPosts.find(p => p.id === post.id)
+    const updated = isNew ? [post, ...blogPosts] : blogPosts.map(p => p.id === post.id ? post : p)
+    saveBlogPosts(updated)
+    setEditingPost(null)
+    setIsCreatingPost(false)
+    setToast({ message: isNew ? 'Artigo criado com sucesso!' : 'Artigo atualizado!', type: 'success' })
+  }, [blogPosts, saveBlogPosts])
+
+  const handleDeletePost = useCallback((post: BlogPost) => {
+    saveBlogPosts(blogPosts.filter(p => p.id !== post.id))
+    setDeletingPost(null)
+    setToast({ message: 'Artigo excluido!', type: 'info' })
+  }, [blogPosts, saveBlogPosts])
+
+  const handleTogglePostStatus = useCallback((post: BlogPost) => {
+    const newStatus = post.status === 'publicado' ? 'rascunho' : 'publicado'
+    const updated = blogPosts.map(p => p.id === post.id ? { ...p, status: newStatus } : p) as BlogPost[]
+    saveBlogPosts(updated)
+    setToast({ message: newStatus === 'publicado' ? 'Artigo publicado!' : 'Artigo movido para rascunho', type: 'success' })
+  }, [blogPosts, saveBlogPosts])
 
   const generateXML = useCallback(() => {
     const lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<imoveis>']
@@ -1510,6 +1563,287 @@ export default function AdminPage() {
                   </svg>
                   <p className="text-charcoal-400 font-medium">Nenhum imovel encontrado</p>
                   <p className="text-charcoal-300 text-sm mt-1">Tente alterar os termos da busca</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ──────── Blog Section ──────── */}
+          {section === 'blog' && (
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-charcoal-800">Blog</h2>
+                  <p className="text-charcoal-400 text-sm mt-1">{blogPosts.length} artigos &bull; {blogPosts.filter(p => p.status === 'publicado').length} publicados</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setIsCreatingPost(true)
+                    setEditingPost({
+                      id: Date.now(),
+                      slug: '',
+                      title: '',
+                      excerpt: '',
+                      content: '',
+                      category: blogCategories[0],
+                      coverImage: '',
+                      author: 'Jeova Guedes',
+                      date: new Date().toISOString().split('T')[0],
+                      readTime: '5 min',
+                      tags: [],
+                      status: 'rascunho',
+                      featured: false,
+                    })
+                  }}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold transition-all"
+                  style={{ background: 'linear-gradient(135deg, #258389, #2E9EA6)' }}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                  Novo Artigo
+                </button>
+              </div>
+
+              {/* Posts table */}
+              <div className="bg-white rounded-2xl shadow-sm border border-sand-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-sand-200 bg-sand-50">
+                        <th className="text-left px-5 py-3.5 font-semibold text-charcoal-500 text-xs tracking-wider uppercase">Artigo</th>
+                        <th className="text-left px-4 py-3.5 font-semibold text-charcoal-500 text-xs tracking-wider uppercase hidden md:table-cell">Categoria</th>
+                        <th className="text-left px-4 py-3.5 font-semibold text-charcoal-500 text-xs tracking-wider uppercase hidden md:table-cell">Data</th>
+                        <th className="text-center px-4 py-3.5 font-semibold text-charcoal-500 text-xs tracking-wider uppercase">Status</th>
+                        <th className="text-right px-5 py-3.5 font-semibold text-charcoal-500 text-xs tracking-wider uppercase">Acoes</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-sand-100">
+                      {blogPosts.map((post) => (
+                        <tr key={post.id} className="hover:bg-sand-50/60 transition-colors">
+                          <td className="px-5 py-4">
+                            <div className="flex items-center gap-3">
+                              {post.coverImage ? (
+                                <img src={post.coverImage} alt="" className="w-14 h-10 rounded-lg object-cover shrink-0" />
+                              ) : (
+                                <div className="w-14 h-10 rounded-lg bg-sand-100 shrink-0 flex items-center justify-center">
+                                  <svg className="w-5 h-5 text-charcoal-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 3h18" />
+                                  </svg>
+                                </div>
+                              )}
+                              <div className="min-w-0">
+                                <p className="font-semibold text-charcoal-800 truncate max-w-[200px] md:max-w-[300px]">{post.title}</p>
+                                <p className="text-charcoal-400 text-xs truncate max-w-[200px] md:max-w-[300px]">{post.excerpt}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 hidden md:table-cell">
+                            <span className="text-xs font-medium text-olive-600 bg-olive-50 px-2.5 py-1 rounded-full">{post.category}</span>
+                          </td>
+                          <td className="px-4 py-4 hidden md:table-cell text-charcoal-500 text-xs">{formatDate(post.date)}</td>
+                          <td className="px-4 py-4 text-center">
+                            <button
+                              onClick={() => handleTogglePostStatus(post)}
+                              className={`text-xs font-semibold px-2.5 py-1 rounded-full transition-colors ${
+                                post.status === 'publicado'
+                                  ? 'bg-olive-100 text-olive-700 hover:bg-olive-200'
+                                  : 'bg-charcoal-100 text-charcoal-500 hover:bg-charcoal-200'
+                              }`}
+                            >
+                              {post.status === 'publicado' ? 'Publicado' : 'Rascunho'}
+                            </button>
+                          </td>
+                          <td className="px-5 py-4 text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              <button
+                                onClick={() => { setEditingPost(post); setIsCreatingPost(false) }}
+                                className="p-2 rounded-lg hover:bg-sand-100 text-charcoal-400 hover:text-olive-600 transition-colors"
+                                title="Editar"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => setDeletingPost(post)}
+                                className="p-2 rounded-lg hover:bg-red-50 text-charcoal-400 hover:text-red-600 transition-colors"
+                                title="Excluir"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                </svg>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Edit/Create Blog Post Modal */}
+              {editingPost && (
+                <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-charcoal-900/60 backdrop-blur-sm p-4 md:p-8">
+                  <div className="relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl my-4" onClick={e => e.stopPropagation()}>
+                    <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-sand-200 bg-white rounded-t-2xl">
+                      <h3 className="text-lg font-bold text-charcoal-800">
+                        {isCreatingPost ? 'Novo Artigo' : 'Editar Artigo'}
+                      </h3>
+                      <button onClick={() => { setEditingPost(null); setIsCreatingPost(false) }} className="p-2 rounded-lg hover:bg-sand-100 text-charcoal-400">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                      {/* Title */}
+                      <div>
+                        <label className="block text-xs font-semibold text-charcoal-500 mb-1.5">TITULO</label>
+                        <input
+                          type="text" value={editingPost.title}
+                          onChange={e => setEditingPost({ ...editingPost, title: e.target.value, slug: slugify(e.target.value) })}
+                          className="w-full px-4 py-3 border-2 border-sand-200 rounded-xl bg-sand-50 text-charcoal-800 outline-none focus:border-olive-500"
+                          placeholder="Titulo do artigo"
+                        />
+                        <span className="text-[10px] text-charcoal-300 mt-1 block">Slug: {editingPost.slug || '...'}</span>
+                      </div>
+                      {/* Excerpt */}
+                      <div>
+                        <label className="block text-xs font-semibold text-charcoal-500 mb-1.5">RESUMO</label>
+                        <textarea
+                          value={editingPost.excerpt}
+                          onChange={e => setEditingPost({ ...editingPost, excerpt: e.target.value })}
+                          className="w-full px-4 py-3 border-2 border-sand-200 rounded-xl bg-sand-50 text-charcoal-800 outline-none focus:border-olive-500 h-20 resize-none"
+                          placeholder="Breve descricao do artigo"
+                        />
+                      </div>
+                      {/* Category + Date + ReadTime row */}
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-charcoal-500 mb-1.5">CATEGORIA</label>
+                          <select
+                            value={editingPost.category}
+                            onChange={e => setEditingPost({ ...editingPost, category: e.target.value })}
+                            className="w-full px-3 py-3 border-2 border-sand-200 rounded-xl bg-sand-50 text-charcoal-800 outline-none focus:border-olive-500 text-sm"
+                          >
+                            {blogCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-charcoal-500 mb-1.5">DATA</label>
+                          <input
+                            type="date" value={editingPost.date}
+                            onChange={e => setEditingPost({ ...editingPost, date: e.target.value })}
+                            className="w-full px-3 py-3 border-2 border-sand-200 rounded-xl bg-sand-50 text-charcoal-800 outline-none focus:border-olive-500 text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-charcoal-500 mb-1.5">TEMPO LEITURA</label>
+                          <input
+                            type="text" value={editingPost.readTime}
+                            onChange={e => setEditingPost({ ...editingPost, readTime: e.target.value })}
+                            className="w-full px-3 py-3 border-2 border-sand-200 rounded-xl bg-sand-50 text-charcoal-800 outline-none focus:border-olive-500 text-sm"
+                            placeholder="5 min"
+                          />
+                        </div>
+                      </div>
+                      {/* Cover image */}
+                      <div>
+                        <label className="block text-xs font-semibold text-charcoal-500 mb-1.5">IMAGEM DE CAPA (URL)</label>
+                        <input
+                          type="text" value={editingPost.coverImage}
+                          onChange={e => setEditingPost({ ...editingPost, coverImage: e.target.value })}
+                          className="w-full px-4 py-3 border-2 border-sand-200 rounded-xl bg-sand-50 text-charcoal-800 outline-none focus:border-olive-500"
+                          placeholder="https://images.unsplash.com/..."
+                        />
+                        {editingPost.coverImage && (
+                          <img src={editingPost.coverImage} alt="Preview" className="mt-2 w-full h-36 object-cover rounded-lg" />
+                        )}
+                      </div>
+                      {/* Tags */}
+                      <div>
+                        <label className="block text-xs font-semibold text-charcoal-500 mb-1.5">TAGS (separadas por virgula)</label>
+                        <input
+                          type="text" value={editingPost.tags.join(', ')}
+                          onChange={e => setEditingPost({ ...editingPost, tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean) })}
+                          className="w-full px-4 py-3 border-2 border-sand-200 rounded-xl bg-sand-50 text-charcoal-800 outline-none focus:border-olive-500"
+                          placeholder="mercado, bahia, investimento"
+                        />
+                      </div>
+                      {/* Content */}
+                      <div>
+                        <label className="block text-xs font-semibold text-charcoal-500 mb-1.5">CONTEUDO (Markdown simplificado)</label>
+                        <textarea
+                          value={editingPost.content}
+                          onChange={e => setEditingPost({ ...editingPost, content: e.target.value })}
+                          className="w-full px-4 py-3 border-2 border-sand-200 rounded-xl bg-sand-50 text-charcoal-800 outline-none focus:border-olive-500 h-64 resize-y font-mono text-sm"
+                          placeholder="## Titulo da secao\n\nParagrafo aqui...\n\n- Item de lista\n- Outro item"
+                        />
+                        <span className="text-[10px] text-charcoal-300 mt-1 block">Use ## para titulos, - para listas, **texto** para negrito</span>
+                      </div>
+                      {/* Featured + Status */}
+                      <div className="flex items-center gap-6">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox" checked={editingPost.featured}
+                            onChange={e => setEditingPost({ ...editingPost, featured: e.target.checked })}
+                            className="w-4 h-4 rounded accent-olive-500"
+                          />
+                          <span className="text-sm text-charcoal-600">Artigo destaque</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox" checked={editingPost.status === 'publicado'}
+                            onChange={e => setEditingPost({ ...editingPost, status: e.target.checked ? 'publicado' : 'rascunho' })}
+                            className="w-4 h-4 rounded accent-olive-500"
+                          />
+                          <span className="text-sm text-charcoal-600">Publicar agora</span>
+                        </label>
+                      </div>
+                    </div>
+                    {/* Footer actions */}
+                    <div className="sticky bottom-0 flex items-center justify-end gap-3 px-6 py-4 border-t border-sand-200 bg-white rounded-b-2xl">
+                      <button onClick={() => { setEditingPost(null); setIsCreatingPost(false) }} className="px-5 py-2.5 rounded-xl text-sm font-medium text-charcoal-500 hover:bg-sand-100 transition-colors">
+                        Cancelar
+                      </button>
+                      <button
+                        onClick={() => editingPost.title && handleSavePost(editingPost)}
+                        disabled={!editingPost.title}
+                        className="px-6 py-2.5 rounded-xl text-white text-sm font-semibold transition-all disabled:opacity-50"
+                        style={{ background: 'linear-gradient(135deg, #258389, #2E9EA6)' }}
+                      >
+                        {isCreatingPost ? 'Criar Artigo' : 'Salvar Alteracoes'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Delete confirmation */}
+              {deletingPost && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-charcoal-900/60 backdrop-blur-sm p-4">
+                  <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center">
+                    <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-bold text-charcoal-800 mb-2">Excluir artigo?</h3>
+                    <p className="text-charcoal-500 text-sm mb-6">
+                      &quot;{deletingPost.title}&quot; sera excluido permanentemente.
+                    </p>
+                    <div className="flex gap-3">
+                      <button onClick={() => setDeletingPost(null)} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-charcoal-500 bg-sand-100 hover:bg-sand-200 transition-colors">
+                        Cancelar
+                      </button>
+                      <button onClick={() => handleDeletePost(deletingPost)} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors">
+                        Excluir
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
