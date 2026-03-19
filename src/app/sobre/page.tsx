@@ -198,7 +198,7 @@ export default function SobrePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
           >
-            Conheca Jeova Guedes e sua paixao pelo mercado imobiliario no litoral da Bahia
+            Conheca Jeová Guedes e sua paixao pelo mercado imobiliario no litoral da Bahia
           </motion.p>
         </div>
       </section>
@@ -254,7 +254,7 @@ export default function SobrePage() {
                   <div className="absolute inset-[3px] rounded-[14px] overflow-hidden z-10 bg-charcoal-800">
                     <Image
                       src="/jeova-guedes.png"
-                      alt="Jeova Guedes - Corretor de Imoveis"
+                      alt="Jeová Guedes - Corretor de Imoveis"
                       fill
                       className="object-cover object-top"
                       sizes="(max-width: 1024px) 100vw, 50vw"
@@ -285,7 +285,7 @@ export default function SobrePage() {
                     <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-charcoal-900/90 via-charcoal-900/50 to-transparent z-20" />
                     <div className="absolute bottom-5 left-6 right-6 z-30">
                       <p className="font-heading text-white text-lg font-semibold drop-shadow-lg">
-                        Jeova Guedes
+                        Jeová Guedes
                       </p>
                       <p className="text-gold-400 text-sm font-medium drop-shadow-md">
                         Corretor de Imoveis &bull; CRECI-BA 022-670
@@ -318,20 +318,20 @@ export default function SobrePage() {
               animate={storyInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.2 }}
             >
-              <span className="text-gold-500 font-medium text-sm uppercase tracking-wider">Sobre Jeova Guedes</span>
+              <span className="text-gold-500 font-medium text-sm uppercase tracking-wider">Sobre Jeová Guedes</span>
               <h2 className="font-heading text-3xl md:text-4xl text-charcoal-800 mt-3">
                 Especialista em imoveis no litoral da Bahia
               </h2>
               <div className="gold-divider mt-4" />
               <div className="mt-6 space-y-4 text-charcoal-600 leading-relaxed">
                 <p>
-                  Com uma trajetoria solida no mercado imobiliario, Jeova Guedes e referencia na
+                  Com uma trajetoria solida no mercado imobiliario, Jeová Guedes e referencia na
                   intermediacao de imoveis em Porto de Sauipe e em toda a Costa dos Coqueiros, no
                   litoral norte da Bahia. Sua paixao pelo que faz se reflete no atendimento
                   personalizado e no profundo conhecimento da regiao.
                 </p>
                 <p>
-                  Atuando ha mais de 10 anos no setor, Jeova construiu uma reputacao baseada em
+                  Atuando ha mais de 10 anos no setor, Jeová construiu uma reputacao baseada em
                   honestidade, dedicacao e resultados. Seja para quem busca uma casa de praia dos
                   sonhos, um investimento rentavel ou o primeiro imovel da familia, ele oferece
                   consultoria completa do inicio ao fim da negociacao.

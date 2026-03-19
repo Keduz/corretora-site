@@ -140,7 +140,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
           <div className="text-center mb-8">
             <img
               src="/logo.png"
-              alt="Jeova Guedes Imoveis"
+              alt="Jeová Guedes Imoveis"
               className="h-20 w-auto mx-auto mb-4"
             />
             <h1 className="font-heading text-2xl font-bold text-charcoal-800">Painel Administrativo</h1>
@@ -269,11 +269,11 @@ function Sidebar({
         <div className="flex items-center gap-3">
           <img
             src="/logo.png"
-            alt="Jeova Guedes Imoveis"
+            alt="Jeová Guedes Imoveis"
             className="h-11 w-auto shrink-0"
           />
           <div>
-            <h2 className="font-heading font-bold text-charcoal-800 text-sm leading-tight">Jeova Guedes</h2>
+            <h2 className="font-heading font-bold text-charcoal-800 text-sm leading-tight">Jeová Guedes</h2>
             <p className="text-xs text-charcoal-400">Administracao</p>
           </div>
         </div>
@@ -1160,7 +1160,7 @@ export default function AdminPage() {
               {/* User badge */}
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-sand-100">
                 <img src="/logo.png" alt="Logo" className="w-6 h-6 object-contain" />
-                <span className="text-xs font-medium text-charcoal-600">Jeova Guedes</span>
+                <span className="text-xs font-medium text-charcoal-600">Jeová Guedes</span>
               </div>
               {/* Logout */}
               <button
@@ -1608,7 +1608,7 @@ export default function AdminPage() {
                       content: '',
                       category: blogCategories[0],
                       coverImage: '',
-                      author: 'Jeova Guedes',
+                      author: 'Jeová Guedes',
                       date: new Date().toISOString().split('T')[0],
                       readTime: '5 min',
                       tags: [],

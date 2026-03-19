@@ -46,14 +46,14 @@ export default function Navbar() {
           <Link href="/" className="flex items-center gap-3 group">
             <Image
               src="/logo.png"
-              alt="Jeova Guedes Imoveis"
+              alt="Jeová Guedes Imoveis"
               width={48}
               height={48}
               className="h-12 w-auto group-hover:scale-105 transition-transform duration-300"
               priority
             />
             <div>
-              <span className="font-heading text-xl font-bold text-charcoal-800">Jeova Guedes</span>
+              <span className="font-heading text-xl font-bold text-charcoal-800">Jeová Guedes</span>
               <span className="block text-[10px] uppercase tracking-[0.2em] text-gold-500 font-medium -mt-1">
                 Corretor de Imoveis
               </span>

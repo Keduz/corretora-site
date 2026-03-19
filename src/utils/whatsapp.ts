@@ -44,7 +44,7 @@ export function openWhatsAppWithMsg(msg: string) {
 
 export function openWhatsAppWithService(title: string) {
   const text =
-    E.briefcase + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+    E.briefcase + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
     NL + NL +
     E.tag + SP + t('*Servico de interesse:*') +
     NL + t(title) +
@@ -66,7 +66,7 @@ export function getWhatsAppUrlWithMsg(msg: string) {
 
 function getEncodedMessage(path: string, extra?: string): string {
   if (path.startsWith('/imoveis/') && extra) {
-    return E.house + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+    return E.house + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
       NL + NL +
       E.pin + SP + t('*Imovel de interesse:*') +
       NL + t(extra) +
@@ -77,7 +77,7 @@ function getEncodedMessage(path: string, extra?: string): string {
   }
 
   if (path.startsWith('/blog/') && extra) {
-    return E.newspaper + SP + t('*Ola! Vim pelo blog da Jeova Guedes Imoveis*') +
+    return E.newspaper + SP + t('*Ola! Vim pelo blog da Jeová Guedes Imoveis*') +
       NL + NL +
       E.book + SP + t('*Artigo:* ' + extra) +
       NL + NL +
@@ -88,14 +88,14 @@ function getEncodedMessage(path: string, extra?: string): string {
 
   const messages: Record<string, string> = {
     '/':
-      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      E.wave + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
       NL + NL +
       E.homeGarden + SP + t('Estou interessado(a) em conhecer os imoveis disponiveis.') +
       NL + NL +
       t('Pode me ajudar? ') + E.smile,
 
     '/imoveis':
-      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      E.wave + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
       NL + NL +
       E.search + SP + t('*Pagina:* Imoveis') +
       NL + NL +
@@ -104,7 +104,7 @@ function getEncodedMessage(path: string, extra?: string): string {
       t('Aguardo retorno! ') + E.pray,
 
     '/servicos':
-      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      E.wave + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
       NL + NL +
       E.briefcase + SP + t('*Pagina:* Servicos') +
       NL + NL +
@@ -113,7 +113,7 @@ function getEncodedMessage(path: string, extra?: string): string {
       t('Aguardo retorno! ') + E.pray,
 
     '/simulador':
-      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      E.wave + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
       NL + NL +
       E.bank + SP + t('*Pagina:* Simulador de Financiamento') +
       NL + NL +
@@ -122,7 +122,7 @@ function getEncodedMessage(path: string, extra?: string): string {
       t('Aguardo retorno! ') + E.pray,
 
     '/portais':
-      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      E.wave + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
       NL + NL +
       E.globe + SP + t('*Pagina:* Portais Imobiliarios') +
       NL + NL +
@@ -131,7 +131,7 @@ function getEncodedMessage(path: string, extra?: string): string {
       t('Aguardo retorno! ') + E.pray,
 
     '/sobre':
-      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      E.wave + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
       NL + NL +
       E.page + SP + t('*Pagina:* Sobre') +
       NL + NL +
@@ -140,14 +140,14 @@ function getEncodedMessage(path: string, extra?: string): string {
       t('Aguardo retorno! ') + E.pray,
 
     '/blog':
-      E.wave + SP + t('*Ola! Vim pelo blog da Jeova Guedes Imoveis*') +
+      E.wave + SP + t('*Ola! Vim pelo blog da Jeová Guedes Imoveis*') +
       NL + NL +
       E.newspaper + SP + t('Gostei dos conteudos e gostaria de mais informacoes.') +
       NL + NL +
       t('Aguardo retorno! ') + E.pray,
 
     '/contato':
-      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      E.wave + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
       NL + NL +
       E.phone + SP + t('*Pagina:* Contato') +
       NL + NL +
@@ -156,14 +156,14 @@ function getEncodedMessage(path: string, extra?: string): string {
       t('Aguardo retorno! ') + E.pray,
 
     '/favoritos':
-      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      E.wave + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
       NL + NL +
       E.heart + SP + t('Tenho alguns imoveis favoritados e gostaria de mais informacoes.') +
       NL + NL +
       t('Aguardo retorno! ') + E.pray,
 
     '/comparar':
-      E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+      E.wave + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
       NL + NL +
       E.chart + SP + t('Estou comparando imoveis e gostaria de ajuda na escolha.') +
       NL + NL +
@@ -171,7 +171,7 @@ function getEncodedMessage(path: string, extra?: string): string {
   }
 
   return messages[path] || (
-    E.wave + SP + t('*Ola! Vim pelo site da Jeova Guedes Imoveis*') +
+    E.wave + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
     NL + NL +
     t('Gostaria de mais informacoes.') +
     NL + NL +

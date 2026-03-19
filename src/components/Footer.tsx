@@ -53,13 +53,13 @@ export default function Footer() {
             <Link href="/" className="inline-flex items-center gap-3">
               <Image
                 src="/logo.png"
-                alt="Jeova Guedes Imoveis"
+                alt="Jeová Guedes Imoveis"
                 width={56}
                 height={56}
                 className="h-14 w-auto brightness-0 invert"
               />
               <span className="font-heading text-2xl font-bold text-gold-400 tracking-wide">
-                Jeova Guedes
+                Jeová Guedes
               </span>
             </Link>
             <p className="mt-4 text-sand-300 text-sm leading-relaxed max-w-xs">
@@ -272,7 +272,7 @@ export default function Footer() {
         <div className="mt-16 pt-8 border-t border-charcoal-700">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sand-400 text-xs text-center md:text-left">
-              &copy; 2026 Jeova Guedes Corretor de Imoveis &bull; CRECI-BA 022-670. Todos os direitos reservados.
+              &copy; 2026 Jeová Guedes Corretor de Imoveis &bull; CRECI-BA 022-670. Todos os direitos reservados.
             </p>
             <div className="flex items-center gap-6">
               <Link
