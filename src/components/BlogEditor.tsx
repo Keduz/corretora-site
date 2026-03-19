@@ -25,6 +25,7 @@ export default function BlogEditor({ content, onChange }: BlogEditorProps) {
   onChangeRef.current = onChange
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         heading: { levels: [2, 3] },
