@@ -577,7 +577,7 @@ export default function Hero() {
         <div className="max-w-5xl mx-auto text-center">
           {/* Logo */}
           <motion.div
-            className="flex justify-center mb-6"
+            className="flex justify-center mb-3 md:mb-6"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
@@ -585,13 +585,13 @@ export default function Hero() {
             <img
               src="/logo.png"
               alt="Jeová Guedes Imoveis"
-              className="h-20 md:h-24 w-auto brightness-0 invert drop-shadow-[0_0_20px_rgba(46,158,166,0.4)]"
+              className="h-14 md:h-24 w-auto brightness-0 invert drop-shadow-[0_0_20px_rgba(46,158,166,0.4)]"
             />
           </motion.div>
 
           {/* CRECI Badge */}
           <motion.div
-            className="flex justify-center mb-6"
+            className="flex justify-center mb-4 md:mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.35, ease: [0.22, 1, 0.36, 1] }}
@@ -648,7 +648,7 @@ export default function Hero() {
 
           {/* Animated gold divider */}
           <motion.div
-            className="gold-divider mx-auto mb-6"
+            className="gold-divider mx-auto mb-3 md:mb-6"
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
             transition={{ duration: 1.2, delay: 1.5, ease: [0.22, 1, 0.36, 1] }}
