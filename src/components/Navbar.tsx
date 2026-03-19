@@ -10,6 +10,7 @@ const navLinks = [
   { href: '/', label: 'Inicio' },
   { href: '/imoveis', label: 'Imoveis' },
   { href: '/servicos', label: 'Servicos' },
+  { href: '/simulador', label: 'Simulador' },
   { href: '/portais', label: 'Portais' },
   { href: '/sobre', label: 'Sobre' },
   { href: '/blog', label: 'Blog' },
