@@ -1,12 +1,13 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { motion, useInView } from 'framer-motion'
 import Link from 'next/link'
 import { formatPrice } from '@/data/properties'
 import { useProperties } from '@/hooks/useProperties'
 import ImageCarousel from '@/components/ImageCarousel'
 import FavoriteButton from '@/components/FavoriteButton'
+import YouTubePreview, { VirtualTourBadge } from '@/components/YouTubePreview'
 
 const typeLabels: Record<string, string> = {
   apartamento: 'Apartamento',
@@ -34,6 +35,7 @@ export default function FeaturedProperties() {
   const isInView = useInView(ref, { once: true, margin: '-100px' })
   const allProperties = useProperties()
   const properties = allProperties.filter((p) => p.featured && p.status === 'ativo')
+  const [hoveredCardId, setHoveredCardId] = useState<number | null>(null)
 
   return (
     <section className="section-padding bg-sand-50" ref={ref}>
@@ -66,8 +68,25 @@ export default function FeaturedProperties() {
               variants={cardVariants}
             >
               {/* Image Carousel */}
-              <div className="relative">
+              <div
+                className="relative"
+                onMouseEnter={() => property.youtubeVideoId ? setHoveredCardId(property.id) : undefined}
+                onMouseLeave={() => setHoveredCardId(null)}
+              >
                 <ImageCarousel images={property.images} title={property.title} />
+
+                {/* YouTube video hover preview */}
+                {property.youtubeVideoId && (
+                  <YouTubePreview
+                    videoId={property.youtubeVideoId}
+                    isHovered={hoveredCardId === property.id}
+                  />
+                )}
+
+                {/* Tour Virtual badge */}
+                {property.youtubeVideoId && hoveredCardId !== property.id && (
+                  <VirtualTourBadge />
+                )}
 
                 {/* Type badge */}
                 <span className="absolute top-4 left-4 z-10 bg-olive-600 text-white text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full">
