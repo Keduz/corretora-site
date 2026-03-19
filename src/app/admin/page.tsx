@@ -6,7 +6,17 @@ import { portais, type Portal } from '@/data/portais'
 import { type BlogPost, defaultPosts, blogCategories, BLOG_STORAGE_KEY, BLOG_VERSION_KEY, BLOG_CURRENT_VERSION, formatDate } from '@/data/blog'
 import dynamic from 'next/dynamic'
 
-const BlogEditor = dynamic(() => import('@/components/BlogEditor'), { ssr: false })
+const BlogEditor = dynamic(() => import('@/components/BlogEditor'), {
+  ssr: false,
+  loading: () => (
+    <div className="border-2 border-sand-200 rounded-xl bg-sand-50 flex items-center justify-center h-[300px]">
+      <div className="flex items-center gap-2 text-charcoal-400 text-sm">
+        <div className="w-5 h-5 border-2 border-olive-500 border-t-transparent rounded-full animate-spin" />
+        Carregando editor...
+      </div>
+    </div>
+  ),
+})
 
 const STORAGE_KEY = 'corretora-admin-properties'
 
@@ -1799,8 +1809,9 @@ export default function AdminPage() {
                       <div>
                         <label className="block text-xs font-semibold text-charcoal-500 mb-1.5">CONTEUDO</label>
                         <BlogEditor
+                          key={editingPost.id}
                           content={editingPost.content}
-                          onChange={(html) => setEditingPost({ ...editingPost, content: html })}
+                          onChange={(html) => setEditingPost(prev => prev ? { ...prev, content: html } : prev)}
                         />
                       </div>
                       {/* Featured + Status */}

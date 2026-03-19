@@ -8,7 +8,7 @@ import Link from '@tiptap/extension-link'
 import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
 import Placeholder from '@tiptap/extension-placeholder'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 interface BlogEditorProps {
   content: string
@@ -21,6 +21,8 @@ export default function BlogEditor({ content, onChange }: BlogEditorProps) {
   const [imageUrl, setImageUrl] = useState('')
   const [imageAlt, setImageAlt] = useState('')
   const [youtubeUrl, setYoutubeUrl] = useState('')
+  const onChangeRef = useRef(onChange)
+  onChangeRef.current = onChange
 
   const editor = useEditor({
     extensions: [
@@ -49,7 +51,7 @@ export default function BlogEditor({ content, onChange }: BlogEditorProps) {
     ],
     content: content || '',
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML())
+      onChangeRef.current(editor.getHTML())
     },
     editorProps: {
       attributes: {
@@ -57,12 +59,6 @@ export default function BlogEditor({ content, onChange }: BlogEditorProps) {
       },
     },
   })
-
-  useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content || '')
-    }
-  }, [content, editor])
 
   const addImage = useCallback(() => {
     if (imageUrl && editor) {
