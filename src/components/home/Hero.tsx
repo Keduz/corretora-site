@@ -33,9 +33,9 @@ const BUILDINGS: BuildingConfig[] = [
   { label: 'Sobrado', x: 3.5, z: 2, w: 1.4, h: 1.8, d: 1.4, hasRoof: true },
 ]
 
-const GOLD = 0xd4a843
-const GOLD_LIGHT = 0xe8c96a
-const GOLD_DIM = 0x8a7030
+const GOLD = 0x2e9ea6
+const GOLD_LIGHT = 0x4cb8bf
+const GOLD_DIM = 0x1e6a6f
 const PARTICLE_COUNT = 150
 const FOLLOWER_COUNT = 25
 const ENTRY_DURATION = 2000
@@ -96,9 +96,9 @@ export default function Hero() {
       glowCanvas.height = 256
       const ctx = glowCanvas.getContext('2d')!
       const grad = ctx.createRadialGradient(128, 128, 0, 128, 128, 128)
-      grad.addColorStop(0, 'rgba(212, 168, 67, 0.12)')
-      grad.addColorStop(0.5, 'rgba(212, 168, 67, 0.04)')
-      grad.addColorStop(1, 'rgba(212, 168, 67, 0)')
+      grad.addColorStop(0, 'rgba(46, 158, 166, 0.12)')
+      grad.addColorStop(0.5, 'rgba(46, 158, 166, 0.04)')
+      grad.addColorStop(1, 'rgba(46, 158, 166, 0)')
       ctx.fillStyle = grad
       ctx.fillRect(0, 0, 256, 256)
       const glowTex = new THREE.CanvasTexture(glowCanvas)
@@ -555,8 +555,8 @@ export default function Hero() {
           transition: 'opacity 0.2s ease',
           transform: 'translate(-50%, -100%) translateY(-8px)',
           background: 'rgba(45, 45, 45, 0.9)',
-          border: '1px solid rgba(212, 168, 67, 0.3)',
-          color: '#d4a843',
+          border: '1px solid rgba(46, 158, 166, 0.3)',
+          color: '#2e9ea6',
         }}
       />
 
@@ -585,7 +585,7 @@ export default function Hero() {
             <img
               src="/logo.png"
               alt="Jeova Guedes Imoveis"
-              className="h-20 md:h-24 w-auto brightness-0 invert drop-shadow-[0_0_20px_rgba(212,168,67,0.4)]"
+              className="h-20 md:h-24 w-auto brightness-0 invert drop-shadow-[0_0_20px_rgba(46,158,166,0.4)]"
             />
           </motion.div>
 
@@ -628,14 +628,14 @@ export default function Hero() {
             <Link
               href="/imoveis"
               className="pointer-events-auto inline-flex items-center gap-2 px-8 py-4 font-medium rounded-lg border-2 transition-all duration-300"
-              style={{ borderColor: '#d4a843', color: '#d4a843' }}
+              style={{ borderColor: '#2e9ea6', color: '#2e9ea6' }}
               onMouseEnter={e => {
-                e.currentTarget.style.background = '#d4a843'
+                e.currentTarget.style.background = '#2e9ea6'
                 e.currentTarget.style.color = '#1a1a1a'
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.background = 'transparent'
-                e.currentTarget.style.color = '#d4a843'
+                e.currentTarget.style.color = '#2e9ea6'
               }}
             >
               Explorar Im&oacute;veis

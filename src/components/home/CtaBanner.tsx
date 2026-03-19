@@ -15,7 +15,7 @@ export default function CtaBanner() {
       <div
         className="absolute top-0 left-0 right-0 h-1"
         style={{
-          background: 'linear-gradient(90deg, transparent, #D4A843, #FFD166, #D4A843, transparent)',
+          background: 'linear-gradient(90deg, transparent, #2E9EA6, #4CB8BF, #2E9EA6, transparent)',
         }}
       />
 
@@ -30,7 +30,7 @@ export default function CtaBanner() {
         >
           <defs>
             <pattern id="ctaPattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M0 20h40M20 0v40" stroke="#D4A843" strokeWidth="0.5" fill="none" />
+              <path d="M0 20h40M20 0v40" stroke="#2E9EA6" strokeWidth="0.5" fill="none" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#ctaPattern)" />
@@ -102,7 +102,7 @@ export default function CtaBanner() {
       <div
         className="absolute bottom-0 left-0 right-0 h-[2px]"
         style={{
-          background: 'linear-gradient(90deg, transparent, #D4A843, #FFD166, #D4A843, transparent)',
+          background: 'linear-gradient(90deg, transparent, #2E9EA6, #4CB8BF, #2E9EA6, transparent)',
         }}
       />
     </section>

@@ -29,7 +29,7 @@ export default function FavoritosPage() {
     <main>
       {/* Hero Banner */}
       <section className="relative bg-charcoal-800 pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(212,168,67,0.08)_0%,transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(46,158,166,0.08)_0%,transparent_60%)]" />
         <div className="relative z-10 max-w-7xl mx-auto px-5 md:px-10 text-center">
           <motion.div
             className="gold-divider mx-auto mb-6"

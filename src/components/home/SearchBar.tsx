@@ -164,7 +164,7 @@ export default function SearchBar() {
           {/* Search button */}
           <button
             onClick={handleSearch}
-            className="w-full bg-gold-400 hover:bg-gold-500 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 hover:shadow-[0_4px_20px_rgba(212,168,67,0.4)] flex items-center justify-center gap-2"
+            className="w-full bg-gold-400 hover:bg-gold-500 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 hover:shadow-[0_4px_20px_rgba(46,158,166,0.4)] flex items-center justify-center gap-2"
           >
             <svg
               className="w-5 h-5"

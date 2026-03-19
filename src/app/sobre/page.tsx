@@ -103,8 +103,8 @@ const particleStyles = `
   50% { transform: translateY(-60px) translateX(20px) scale(1.5); opacity: 0.8; }
 }
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 15px 2px rgba(212,168,67,0.25), 0 0 40px 4px rgba(212,168,67,0.10); }
-  50% { box-shadow: 0 0 25px 6px rgba(212,168,67,0.40), 0 0 60px 10px rgba(212,168,67,0.18); }
+  0%, 100% { box-shadow: 0 0 15px 2px rgba(46,158,166,0.25), 0 0 40px 4px rgba(46,158,166,0.10); }
+  50% { box-shadow: 0 0 25px 6px rgba(46,158,166,0.40), 0 0 60px 10px rgba(46,158,166,0.18); }
 }
 @keyframes gentleTilt {
   0% { transform: perspective(800px) rotateY(-4deg) rotateX(2deg); }
@@ -177,7 +177,7 @@ export default function SobrePage() {
 
       {/* Hero Banner */}
       <section className="relative bg-charcoal-800 pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(212,168,67,0.08)_0%,transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(46,158,166,0.08)_0%,transparent_60%)]" />
         <div className="relative z-10 max-w-7xl mx-auto px-5 md:px-10 text-center">
           <motion.div
             className="gold-divider mx-auto mb-6"
@@ -246,7 +246,7 @@ export default function SobrePage() {
                   <div
                     className="absolute -inset-[3px] rounded-2xl z-0"
                     style={{
-                      background: 'linear-gradient(135deg, #D4A843, #b8912e, #D4A843, #e8c96a, #D4A843)',
+                      background: 'linear-gradient(135deg, #2E9EA6, #258389, #2E9EA6, #4CB8BF, #2E9EA6)',
                       animation: 'pulseGlow 3s ease-in-out infinite',
                     }}
                   />
@@ -304,7 +304,7 @@ export default function SobrePage() {
                         left: p.left,
                         width: p.size,
                         height: p.size,
-                        background: 'radial-gradient(circle, #D4A843 0%, rgba(212,168,67,0) 70%)',
+                        background: 'radial-gradient(circle, #2E9EA6 0%, rgba(46,158,166,0) 70%)',
                         animation: `floatParticle ${p.duration}s ease-in-out ${p.delay}s infinite`,
                       }}
                     />
@@ -445,7 +445,7 @@ export default function SobrePage() {
           <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" viewBox="0 0 800 200">
             <defs>
               <pattern id="aboutCtaPattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M0 20h40M20 0v40" stroke="#D4A843" strokeWidth="0.5" fill="none" />
+                <path d="M0 20h40M20 0v40" stroke="#2E9EA6" strokeWidth="0.5" fill="none" />
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#aboutCtaPattern)" />

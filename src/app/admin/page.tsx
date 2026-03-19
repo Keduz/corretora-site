@@ -155,7 +155,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
               type="submit"
               className="w-full py-3.5 rounded-xl font-semibold text-white transition-all duration-300 hover:-translate-y-0.5"
               style={{
-                background: 'linear-gradient(135deg, #6B7F4A, #94A76B)',
+                background: 'linear-gradient(135deg, #258389, #2E9EA6)',
                 boxShadow: '0 4px 20px rgba(107,127,74,0.3)',
               }}
             >
@@ -790,7 +790,7 @@ function PropertyModal({
               type="submit"
               className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
               style={{
-                background: 'linear-gradient(135deg, #6B7F4A, #94A76B)',
+                background: 'linear-gradient(135deg, #258389, #2E9EA6)',
                 boxShadow: '0 4px 16px rgba(107,127,74,0.3)',
               }}
             >
@@ -1208,7 +1208,7 @@ export default function AdminPage() {
                               className="h-full rounded-full transition-all duration-500"
                               style={{
                                 width: `${pct}%`,
-                                background: 'linear-gradient(135deg, #6B7F4A, #94A76B)',
+                                background: 'linear-gradient(135deg, #258389, #2E9EA6)',
                               }}
                             />
                           </div>
@@ -1236,7 +1236,7 @@ export default function AdminPage() {
                               className="h-full rounded-full transition-all duration-500"
                               style={{
                                 width: `${pct}%`,
-                                background: 'linear-gradient(135deg, #D4A843, #B8922E)',
+                                background: 'linear-gradient(135deg, #258389, #2E9EA6)',
                               }}
                             />
                           </div>
@@ -1302,7 +1302,7 @@ export default function AdminPage() {
                   onClick={() => setIsCreating(true)}
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-white text-sm transition-all duration-300 hover:-translate-y-0.5 shrink-0"
                   style={{
-                    background: 'linear-gradient(135deg, #6B7F4A, #94A76B)',
+                    background: 'linear-gradient(135deg, #258389, #2E9EA6)',
                     boxShadow: '0 4px 16px rgba(107,127,74,0.3)',
                   }}
                 >

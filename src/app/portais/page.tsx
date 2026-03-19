@@ -131,7 +131,7 @@ export default function PortaisPage() {
     <main>
       {/* Hero */}
       <section className="relative bg-charcoal-800 pt-32 pb-16 md:pt-40 md:pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(212,168,67,0.08),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(46,158,166,0.08),transparent_70%)]" />
         <div className="max-w-7xl mx-auto px-5 md:px-10 relative z-10">
           <motion.div
             className="text-center max-w-3xl mx-auto"
