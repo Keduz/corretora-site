@@ -2,8 +2,24 @@
 
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
+import { getWhatsAppUrlWithMsg } from '@/utils/whatsapp'
 
-const WHATSAPP_BASE = 'https://wa.me/5571997106376'
+function buildServiceMsg(title: string) {
+  const briefcase = '\u{1F4BC}'
+  const tag = '\u{1F3F7}\uFE0F'
+  const clipboard = '\u{1F4CB}'
+  const pray = '\u{1F64F}'
+  return [
+    `${briefcase} *Ola! Vim pelo site da Jeova Guedes Imoveis*`,
+    '',
+    `${tag} *Servico de interesse:*`,
+    title,
+    '',
+    `${clipboard} Gostaria de saber mais detalhes sobre este servico.`,
+    '',
+    `Aguardo retorno! ${pray}`,
+  ].join('\n')
+}
 
 const services = [
   {
@@ -205,7 +221,7 @@ function ServiceSection({
 
             <div className="mt-8">
               <a
-                href={`${WHATSAPP_BASE}?text=${encodeURIComponent(`Ola! Vim da pagina de Servicos e tenho interesse em: ${service.title}. Gostaria de mais informacoes.`)}`}
+                href={getWhatsAppUrlWithMsg(buildServiceMsg(service.title))}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-whatsapp"

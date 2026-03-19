@@ -1,33 +1,14 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-
-function getWhatsAppMsg(path: string) {
-  const map: Record<string, string> = {
-    '/': 'Ola! Vim do site (pagina inicial) e gostaria de mais informacoes.',
-    '/imoveis': 'Ola! Estou na pagina de imoveis e gostaria de ajuda.',
-    '/servicos': 'Ola! Vi os servicos no site e gostaria de saber mais.',
-    '/simulador': 'Ola! Vim da pagina de financiamento e gostaria de tirar duvidas.',
-    '/portais': 'Ola! Vi a pagina de portais e gostaria de mais informacoes.',
-    '/sobre': 'Ola! Vi a pagina Sobre e gostaria de entrar em contato.',
-    '/blog': 'Ola! Vim do blog e gostaria de mais informacoes.',
-    '/contato': 'Ola! Vim da pagina de contato e gostaria de falar com voce.',
-    '/favoritos': 'Ola! Tenho imoveis favoritados no site e gostaria de saber mais.',
-    '/comparar': 'Ola! Estou comparando imoveis no site e gostaria de ajuda.',
-  }
-  let msg = map[path]
-  if (!msg && path.startsWith('/blog/')) msg = 'Ola! Vim de um artigo do blog e gostaria de mais informacoes.'
-  if (!msg && path.startsWith('/imoveis/')) msg = 'Ola! Estou vendo um imovel no site e gostaria de mais informacoes.'
-  return msg || 'Ola! Vim do site e gostaria de mais informacoes.'
-}
+import { getWhatsAppUrl } from '@/utils/whatsapp'
 
 export default function WhatsAppFloat() {
   const pathname = usePathname()
-  const msg = getWhatsAppMsg(pathname)
 
   return (
     <a
-      href={`https://wa.me/5571997106376?text=${encodeURIComponent(msg)}`}
+      href={getWhatsAppUrl(pathname)}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Falar no WhatsApp"

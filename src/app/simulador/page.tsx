@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
+import { getWhatsAppUrl } from '@/utils/whatsapp'
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell,
@@ -518,7 +519,7 @@ export default function SimuladorPage() {
                     <p className="text-sand-300 text-sm mb-4">Gostou da simulacao? Fale com um especialista!</p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                       <a
-                        href="https://wa.me/5571997106376?text=Ol%C3%A1!%20Fiz%20uma%20simula%C3%A7%C3%A3o%20no%20site%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es."
+                        href={getWhatsAppUrl('/simulador')}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn-whatsapp"

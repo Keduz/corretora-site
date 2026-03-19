@@ -6,27 +6,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useFavorites } from './FavoritesContext'
-
-function getWhatsAppUrl(path: string) {
-  const base = 'https://wa.me/5571997106376'
-  const pageMap: Record<string, string> = {
-    '/': 'Ola! Vim do site (pagina inicial) e gostaria de mais informacoes sobre imoveis.',
-    '/imoveis': 'Ola! Estou na pagina de imoveis do site e gostaria de ajuda para encontrar o imovel ideal.',
-    '/servicos': 'Ola! Vi os servicos no site e gostaria de saber mais detalhes.',
-    '/simulador': 'Ola! Estou na pagina de financiamento do site e gostaria de tirar duvidas.',
-    '/portais': 'Ola! Vi a pagina de portais no site e gostaria de mais informacoes.',
-    '/sobre': 'Ola! Vi a pagina Sobre no site e gostaria de entrar em contato.',
-    '/blog': 'Ola! Vim do blog do site e gostaria de mais informacoes.',
-    '/contato': 'Ola! Vim da pagina de contato do site e gostaria de falar com voce.',
-    '/favoritos': 'Ola! Tenho alguns imoveis favoritados no site e gostaria de mais informacoes.',
-    '/comparar': 'Ola! Estou comparando imoveis no site e gostaria de ajuda na escolha.',
-  }
-  let msg = pageMap[path]
-  if (!msg && path.startsWith('/blog/')) msg = 'Ola! Vim de um artigo do blog e gostaria de mais informacoes.'
-  if (!msg && path.startsWith('/imoveis/')) msg = 'Ola! Estou vendo um imovel no site e gostaria de mais informacoes.'
-  if (!msg) msg = 'Ola! Vim do site e gostaria de mais informacoes.'
-  return `${base}?text=${encodeURIComponent(msg)}`
-}
+import { getWhatsAppUrl } from '@/utils/whatsapp'
 
 const navLinks = [
   { href: '/', label: 'Inicio' },

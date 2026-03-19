@@ -8,8 +8,7 @@ import { formatPrice } from '@/data/properties'
 import ImageGallery from '@/components/ImageGallery'
 import FavoriteButton from '@/components/FavoriteButton'
 import PropertyMap from '@/components/PropertyMap'
-
-const WHATSAPP_URL = 'https://wa.me/5571997106376'
+import { getWhatsAppUrl } from '@/utils/whatsapp'
 
 const typeLabels: Record<string, string> = {
   apartamento: 'Apartamento',
@@ -35,9 +34,7 @@ export default function PropertyDetailClient({
   const similarRef = useRef(null)
   const similarInView = useInView(similarRef, { once: true, margin: '-80px' })
 
-  const whatsappMessage = encodeURIComponent(
-    `Ola! Tenho interesse no imovel: ${property.title} (${formattedPrice}). Gostaria de agendar uma visita.`
-  )
+  const whatsappUrl = getWhatsAppUrl(`/imoveis/${property.slug}`, `${property.title} (${formattedPrice})`)
 
   return (
     <main>
@@ -275,7 +272,7 @@ export default function PropertyDetailClient({
                   </p>
 
                   <a
-                    href={`${WHATSAPP_URL}?text=${whatsappMessage}`}
+                    href={whatsappUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-whatsapp w-full justify-center"

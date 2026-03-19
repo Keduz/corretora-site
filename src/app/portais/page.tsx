@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { portais, type Portal } from '@/data/portais'
+import { getWhatsAppUrl } from '@/utils/whatsapp'
 
 type Filter = 'todos' | 'pago' | 'gratuito'
 
@@ -305,7 +306,7 @@ export default function PortaisPage() {
               Entre em contato conosco e comece a divulgar seus imoveis nos maiores portais do Brasil de forma automatica.
             </p>
             <a
-              href="https://wa.me/5571997106376?text=Ola!%20Gostaria%20de%20saber%20mais%20sobre%20a%20integracao%20com%20os%20portais%20imobiliarios."
+              href={getWhatsAppUrl('/portais')}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-whatsapp mt-8 inline-flex"

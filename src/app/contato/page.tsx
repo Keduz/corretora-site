@@ -2,8 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-
-const WHATSAPP_URL = 'https://wa.me/5571997106376?text=' + encodeURIComponent('Ola! Vim da pagina de Contato do site e gostaria de falar com voce.')
+import { getWhatsAppUrl, getWhatsAppUrlWithMsg } from '@/utils/whatsapp'
 
 const contactInfo = [
   {
@@ -67,9 +66,27 @@ export default function ContatoPage() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const message = `Ola! Meu nome e ${formData.nome}. ${formData.mensagem}`
-    const whatsappUrl = `https://wa.me/5571997106376?text=${encodeURIComponent(message)}`
-    window.open(whatsappUrl, '_blank')
+    const phone = '\u{1F4DE}'
+    const person = '\u{1F464}'
+    const email = '\u{1F4E7}'
+    const mobile = '\u{1F4F1}'
+    const city = '\u{1F3D9}\uFE0F'
+    const chat = '\u{1F4AC}'
+    const pray = '\u{1F64F}'
+    const message = [
+      `${phone} *Ola! Vim pelo site da Jeova Guedes Imoveis*`,
+      '',
+      `${person} *Nome:* ${formData.nome}`,
+      `${email} *E-mail:* ${formData.email}`,
+      `${mobile} *Telefone:* ${formData.telefone}`,
+      `${city} *Cidade:* ${formData.cidade}`,
+      '',
+      `${chat} *Mensagem:*`,
+      formData.mensagem,
+      '',
+      `Aguardo retorno! ${pray}`,
+    ].join('\n')
+    window.open(getWhatsAppUrlWithMsg(message), '_blank')
   }
 
   const inputClasses =
@@ -153,7 +170,7 @@ export default function ContatoPage() {
                 <h3 className="font-heading text-lg text-charcoal-800 mb-2">Atendimento rapido pelo WhatsApp</h3>
                 <p className="text-charcoal-500 text-sm mb-4">Resposta em ate 30 minutos em horario comercial</p>
                 <a
-                  href={WHATSAPP_URL}
+                  href={getWhatsAppUrl('/contato')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-whatsapp w-full justify-center"

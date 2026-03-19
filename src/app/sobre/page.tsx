@@ -3,8 +3,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import { motion, useInView } from 'framer-motion'
 import Image from 'next/image'
-
-const WHATSAPP_URL = 'https://wa.me/5571997106376?text=' + encodeURIComponent('Ola! Vim da pagina Sobre no site e gostaria de entrar em contato com Jeova Guedes.')
+import { getWhatsAppUrl } from '@/utils/whatsapp'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -475,7 +474,7 @@ export default function SobrePage() {
             transition={{ delay: 0.4, duration: 0.6 }}
           >
             <a
-              href={WHATSAPP_URL}
+              href={getWhatsAppUrl('/sobre')}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-whatsapp text-lg"

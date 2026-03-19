@@ -5,8 +5,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { type BlogPost, getPostBySlug, getPublishedPosts, formatDate } from '@/data/blog'
-
-const WHATSAPP_URL = 'https://wa.me/5571997106376'
+import { getWhatsAppUrl } from '@/utils/whatsapp'
 
 /* Renders blog content - supports HTML (from TipTap editor) */
 function RenderContent({ content }: { content: string }) {
@@ -147,7 +146,7 @@ export default function BlogPostClient() {
             <h3 className="font-heading text-2xl text-white mb-2">Gostou deste artigo?</h3>
             <p className="text-olive-100 text-sm mb-6">Fale com Jeova Guedes e receba assessoria personalizada</p>
             <a
-              href={`${WHATSAPP_URL}?text=${encodeURIComponent(`Ola! Li o artigo "${post.title}" no blog e gostaria de mais informacoes.`)}`}
+              href={getWhatsAppUrl(`/blog/${post.slug}`, post.title)}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-whatsapp"

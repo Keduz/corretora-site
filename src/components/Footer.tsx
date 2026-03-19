@@ -2,7 +2,9 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { getWhatsAppUrl } from '@/utils/whatsapp'
 
 const quickLinks = [
   { label: 'Inicio', href: '/' },
@@ -30,6 +32,8 @@ const fadeInUp = {
 }
 
 export default function Footer() {
+  const pathname = usePathname()
+
   return (
     <footer className="bg-charcoal-900 text-sand-200">
       {/* Gold accent line */}
@@ -97,7 +101,7 @@ export default function Footer() {
 
               {/* WhatsApp */}
               <a
-                href={`https://wa.me/5571997106376?text=${encodeURIComponent('Ola! Vim do site de Jeova Guedes Imoveis e gostaria de mais informacoes.')}`}
+                href={getWhatsAppUrl(pathname)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full border border-charcoal-600 flex items-center justify-center text-sand-300 hover:border-[#25D366] hover:text-[#25D366] transition-all duration-300 hover:scale-110"
