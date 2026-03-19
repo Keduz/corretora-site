@@ -51,7 +51,7 @@ export function openWhatsAppWithService(title: string) {
     NL + NL +
     E.clipboard + SP + t('Gostaria de saber mais detalhes sobre este servico.') +
     NL + NL +
-    t('Aguardo retorno! ') + E.pray
+    t('Aguardo retorno!')
   window.open(buildUrl(text), '_blank')
 }
 
@@ -73,7 +73,7 @@ function getEncodedMessage(path: string, extra?: string): string {
       NL + NL +
       E.clipboard + SP + t('Gostaria de agendar uma visita e saber mais detalhes.') +
       NL + NL +
-      t('Aguardo retorno! ') + E.pray
+      t('Aguardo retorno!')
   }
 
   if (path.startsWith('/blog/') && extra) {
@@ -83,7 +83,7 @@ function getEncodedMessage(path: string, extra?: string): string {
       NL + NL +
       t('Gostei do conteudo e gostaria de mais informacoes.') +
       NL + NL +
-      t('Aguardo retorno! ') + E.pray
+      t('Aguardo retorno!')
   }
 
   const messages: Record<string, string> = {
@@ -101,7 +101,7 @@ function getEncodedMessage(path: string, extra?: string): string {
       NL + NL +
       t('Estou buscando um imovel e gostaria de ajuda para encontrar o ideal.') +
       NL + NL +
-      t('Aguardo retorno! ') + E.pray,
+      t('Aguardo retorno!'),
 
     '/servicos':
       E.wave + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
@@ -110,7 +110,7 @@ function getEncodedMessage(path: string, extra?: string): string {
       NL + NL +
       t('Gostaria de saber mais sobre os servicos oferecidos.') +
       NL + NL +
-      t('Aguardo retorno! ') + E.pray,
+      t('Aguardo retorno!'),
 
     '/simulador':
       E.wave + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
@@ -119,7 +119,7 @@ function getEncodedMessage(path: string, extra?: string): string {
       NL + NL +
       t('Gostaria de tirar duvidas sobre financiamento imobiliario.') +
       NL + NL +
-      t('Aguardo retorno! ') + E.pray,
+      t('Aguardo retorno!'),
 
     '/portais':
       E.wave + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
@@ -128,7 +128,7 @@ function getEncodedMessage(path: string, extra?: string): string {
       NL + NL +
       t('Gostaria de saber mais sobre a integracao com os portais.') +
       NL + NL +
-      t('Aguardo retorno! ') + E.pray,
+      t('Aguardo retorno!'),
 
     '/sobre':
       E.wave + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
@@ -137,14 +137,14 @@ function getEncodedMessage(path: string, extra?: string): string {
       NL + NL +
       t('Gostei do que vi e gostaria de entrar em contato.') +
       NL + NL +
-      t('Aguardo retorno! ') + E.pray,
+      t('Aguardo retorno!'),
 
     '/blog':
       E.wave + SP + t('*Ola! Vim pelo blog da Jeová Guedes Imoveis*') +
       NL + NL +
       E.newspaper + SP + t('Gostei dos conteudos e gostaria de mais informacoes.') +
       NL + NL +
-      t('Aguardo retorno! ') + E.pray,
+      t('Aguardo retorno!'),
 
     '/contato':
       E.wave + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
@@ -153,21 +153,21 @@ function getEncodedMessage(path: string, extra?: string): string {
       NL + NL +
       t('Gostaria de falar diretamente com voce.') +
       NL + NL +
-      t('Aguardo retorno! ') + E.pray,
+      t('Aguardo retorno!'),
 
     '/favoritos':
       E.wave + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
       NL + NL +
       E.heart + SP + t('Tenho alguns imoveis favoritados e gostaria de mais informacoes.') +
       NL + NL +
-      t('Aguardo retorno! ') + E.pray,
+      t('Aguardo retorno!'),
 
     '/comparar':
       E.wave + SP + t('*Ola! Vim pelo site da Jeová Guedes Imoveis*') +
       NL + NL +
       E.chart + SP + t('Estou comparando imoveis e gostaria de ajuda na escolha.') +
       NL + NL +
-      t('Aguardo retorno! ') + E.pray,
+      t('Aguardo retorno!'),
   }
 
   return messages[path] || (
@@ -175,6 +175,6 @@ function getEncodedMessage(path: string, extra?: string): string {
     NL + NL +
     t('Gostaria de mais informacoes.') +
     NL + NL +
-    t('Aguardo retorno! ') + E.pray
+    t('Aguardo retorno!')
   )
 }
