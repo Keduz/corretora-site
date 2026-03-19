@@ -36,6 +36,8 @@ export const defaultPosts: BlogPost[] = [
 
 Antes de comecar a busca, tenha uma visao clara do quanto voce pode investir. Considere nao apenas o valor do imovel, mas tambem custos como ITBI (Imposto sobre Transmissao de Bens Imoveis), escritura, registro e eventuais reformas.
 
+![Planejamento financeiro para compra de imovel](https://images.unsplash.com/photo-1554224155-8d04cb21cd6e?w=800&q=80)
+
 **Dica pratica:** A parcela do financiamento nao deve ultrapassar 30% da sua renda bruta familiar.
 
 ## 2. Pesquise a Localizacao com Cuidado
@@ -47,6 +49,8 @@ A localizacao e o fator que mais impacta na valorizacao do imovel. Avalie:
 - Planos de desenvolvimento da regiao
 - Vizinhanca e qualidade de vida
 
+@youtube(HmJbJBMkiSo)
+
 ## 3. Visite o Imovel em Diferentes Horarios
 
 Um erro comum e visitar o imovel apenas uma vez. Visite em horarios diferentes para avaliar:
@@ -55,6 +59,8 @@ Um erro comum e visitar o imovel apenas uma vez. Visite em horarios diferentes p
 - Nivel de ruido em horarios de pico
 - Movimentacao na rua e seguranca noturna
 - Fluxo de transito nos arredores
+
+![Visitacao de imovel - observe todos os detalhes](https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80)
 
 ## 4. Analise a Documentacao Completa
 
@@ -92,6 +98,8 @@ Um corretor experiente pode economizar tempo, dinheiro e dores de cabeca. Ele co
 
 O mercado imobiliario da Bahia segue em trajetoria de crescimento em 2026, impulsionado por investimentos em infraestrutura, turismo e o aumento da demanda por imoveis no litoral norte.
 
+![Vista aerea de Salvador - mercado em crescimento](https://images.unsplash.com/photo-1585535738243-a4ba0cccb6cc?w=800&q=80)
+
 ## Regioes em Destaque
 
 ### Porto de Sauipe e Costa dos Coqueiros
@@ -100,8 +108,12 @@ A regiao do litoral norte continua sendo o grande destaque do estado. Com invest
 ### Salvador - Pituba e Barra
 Os bairros tradicionais de Salvador mantem demanda aquecida, especialmente para apartamentos de 2 e 3 quartos. A revitalizacao urbana tem atraido novos investidores.
 
+@youtube(gXJnMi-vRKg)
+
 ### Feira de Santana
 A segunda maior cidade da Bahia apresenta excelente custo-beneficio e crescimento constante, com condominios fechados ganhando cada vez mais espaco.
+
+![Condominios modernos em expansao na Bahia](https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80)
 
 ## Tendencias para 2026
 
@@ -125,7 +137,7 @@ Para investidores, o litoral norte da Bahia oferece retornos consistentes tanto 
     readTime: '8 min',
     tags: ['mercado', 'bahia', 'investimento', 'tendencias'],
     status: 'publicado',
-    featured: true,
+    featured: false,
   },
   {
     id: 3,
@@ -136,6 +148,8 @@ Para investidores, o litoral norte da Bahia oferece retornos consistentes tanto 
     content: `## Por que a Avaliacao e Importante?
 
 Saber o valor real de um imovel e fundamental tanto para quem quer comprar quanto para quem deseja vender. Uma avaliacao correta evita pagar mais do que deveria ou vender abaixo do preco justo.
+
+![Avaliacao profissional de imovel](https://images.unsplash.com/photo-1560520031-3a4dc4e9de0c?w=800&q=80)
 
 ## Fatores que Determinam o Valor
 
@@ -152,6 +166,8 @@ O fator mais importante. Considere:
 - Numero de quartos, suites e vagas
 - Aproveitamento inteligente do espaco
 
+@youtube(kFez02jMbSY)
+
 ### 3. Estado de Conservacao
 - Idade do imovel e do condominio
 - Reformas recentes realizadas
@@ -163,6 +179,8 @@ O fator mais importante. Considere:
 - Portaria e seguranca
 - Manutencao das areas comuns
 - Valor do condominio
+
+![Infraestrutura de condominio valoriza o imovel](https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&q=80)
 
 ### 5. Documentacao
 - Imovel regularizado e sem pendencias
@@ -204,6 +222,8 @@ Sempre consulte um profissional qualificado para uma avaliacao precisa. Um corre
 
 O financiamento imobiliario e um emprestimo bancario destinado a compra de imoveis, onde o proprio imovel serve como garantia (alienacao fiduciaria). No Brasil, os prazos podem chegar a 35 anos.
 
+![Financiamento imobiliario - realize seu sonho](https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?w=800&q=80)
+
 ## SAC vs PRICE: Qual Escolher?
 
 ### Tabela SAC (Sistema de Amortizacao Constante)
@@ -217,6 +237,8 @@ O financiamento imobiliario e um emprestimo bancario destinado a compra de imove
 - No comeco, maior parte da parcela e juros
 - **Vantagem:** Previsibilidade no orcamento
 - **Ideal para:** Quem precisa de parcelas estaveis
+
+@youtube(aJJMazqGqoM)
 
 ## Documentos Necessarios
 
@@ -233,6 +255,8 @@ O financiamento imobiliario e um emprestimo bancario destinado a compra de imove
 - Certidao de onus reais
 - IPTU quitado
 - Habite-se
+
+![Documentacao organizada agiliza a aprovacao](https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80)
 
 ## Como Conseguir a Melhor Taxa
 
@@ -261,7 +285,7 @@ O FGTS pode ser usado para:
     readTime: '7 min',
     tags: ['financiamento', 'sac', 'price', 'fgts'],
     status: 'publicado',
-    featured: true,
+    featured: false,
   },
   {
     id: 5,
@@ -272,6 +296,8 @@ O FGTS pode ser usado para:
     content: `## O Litoral da Bahia como Destino de Investimento
 
 O litoral norte da Bahia, especialmente a regiao entre Salvador e a Costa dos Coqueiros, se consolidou como um dos mercados imobiliarios mais promissores do Nordeste brasileiro.
+
+![Litoral norte da Bahia - paraiso para investidores](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80)
 
 ## Numeros que Impressionam
 
@@ -288,11 +314,15 @@ Diferente de investimentos financeiros volateis, imoveis no litoral da Bahia apr
 ### 2. Renda Passiva
 Alugar o imovel por temporada atraves de plataformas como Airbnb gera renda passiva significativa, especialmente nos meses de verao e feriados prolongados.
 
+@youtube(bvPJpnXsn3U)
+
 ### 3. Patrimonio Tangivel
 O imovel e um ativo real que voce pode usar, alugar ou vender. Diferente de acoes, voce tem controle total sobre seu investimento.
 
 ### 4. Qualidade de Vida
 Alem do retorno financeiro, voce tem um refugio no paraiso para ferias em familia.
+
+![Casa de praia - investimento e qualidade de vida](https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=800&q=80)
 
 ## Melhores Regioes para Investir
 
@@ -338,6 +368,8 @@ Novos empreendimentos com conceito de resort residencial.
 
 Decorar um apartamento de praia vai alem da estetica — e criar um ambiente que respire leveza, frescor e conexao com a natureza ao redor.
 
+![Decoracao litoranea - tons naturais e leveza](https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=800&q=80)
+
 ## Tendencias em Alta
 
 ### 1. Tons Naturais e Terrosos
@@ -354,12 +386,16 @@ A sustentabilidade nao e mais tendencia, e requisito:
 - Iluminacao em LED
 - Tintas ecologicas
 
+@youtube(EoFsR1baIiw)
+
 ### 3. Integracao Indoor-Outdoor
 Ambientes que se conectam com o exterior:
 - Varandas como extensao da sala
 - Portas de correr amplas
 - Jardins verticais
 - Plantas tropicais nos ambientes
+
+![Integracao indoor-outdoor - varanda como extensao da sala](https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&q=80)
 
 ### 4. Minimalismo Tropical
 Menos e mais, mas com personalidade:
@@ -373,6 +409,8 @@ Menos e mais, mas com personalidade:
 **Cozinha:** Opte por bancadas claras e armarios em tons de madeira. Utilitarios a mostra em prateleiras abertas dao charme praiano.
 
 **Quarto:** Roupa de cama em linho branco, cortinas leves e ventilacao cruzada. Cabeceira em palhinha e um classico atemporal.
+
+![Quarto praiano - minimalismo e conforto](https://images.unsplash.com/photo-1617325247661-675ab4b64ae2?w=800&q=80)
 
 **Banheiro:** Revestimentos que remetem a natureza. Pedras naturais, madeira teca e plantas que gostam de umidade.
 

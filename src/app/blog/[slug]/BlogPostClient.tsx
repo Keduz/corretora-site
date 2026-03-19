@@ -8,7 +8,38 @@ import { type BlogPost, getPostBySlug, getPublishedPosts, formatDate } from '@/d
 
 const WHATSAPP_URL = 'https://wa.me/5571997106376'
 
-/* Simple markdown-ish renderer for our blog content */
+/* YouTube embed component */
+function YouTubeEmbed({ videoId }: { videoId: string }) {
+  return (
+    <div className="my-8 rounded-2xl overflow-hidden shadow-lg bg-charcoal-900 aspect-video">
+      <iframe
+        src={`https://www.youtube.com/embed/${videoId}`}
+        title="Video"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        className="w-full h-full"
+      />
+    </div>
+  )
+}
+
+/* Content image component */
+function ContentImage({ src, alt }: { src: string; alt: string }) {
+  return (
+    <figure className="my-8">
+      <img
+        src={src}
+        alt={alt}
+        className="w-full rounded-2xl shadow-md object-cover max-h-[480px]"
+      />
+      {alt && alt !== 'img' && (
+        <figcaption className="text-center text-xs text-charcoal-400 mt-3 italic">{alt}</figcaption>
+      )}
+    </figure>
+  )
+}
+
+/* Markdown-ish renderer with YouTube and image support */
 function RenderContent({ content }: { content: string }) {
   const lines = content.split('\n')
   const elements: React.ReactNode[] = []
@@ -33,6 +64,22 @@ function RenderContent({ content }: { content: string }) {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
+
+    // YouTube embed: @youtube(VIDEO_ID)
+    const ytMatch = line.match(/^@youtube\(([^)]+)\)$/)
+    if (ytMatch) {
+      flushList()
+      elements.push(<YouTubeEmbed key={i} videoId={ytMatch[1]} />)
+      continue
+    }
+
+    // Image: ![alt](url)
+    const imgMatch = line.match(/^!\[([^\]]*)\]\(([^)]+)\)$/)
+    if (imgMatch) {
+      flushList()
+      elements.push(<ContentImage key={i} src={imgMatch[2]} alt={imgMatch[1] || 'img'} />)
+      continue
+    }
 
     if (line.startsWith('## ')) {
       flushList()

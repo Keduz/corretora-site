@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 
-const WHATSAPP_URL = 'https://wa.me/5571997106376'
+const WHATSAPP_BASE = 'https://wa.me/5571997106376'
 
 const services = [
   {
@@ -205,7 +205,7 @@ function ServiceSection({
 
             <div className="mt-8">
               <a
-                href={WHATSAPP_URL}
+                href={`${WHATSAPP_BASE}?text=${encodeURIComponent(`Ola! Vim da pagina de Servicos e tenho interesse em: ${service.title}. Gostaria de mais informacoes.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-whatsapp"

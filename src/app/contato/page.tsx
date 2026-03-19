@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 
-const WHATSAPP_URL = 'https://wa.me/5571997106376'
+const WHATSAPP_URL = 'https://wa.me/5571997106376?text=' + encodeURIComponent('Ola! Vim da pagina de Contato do site e gostaria de falar com voce.')
 
 const contactInfo = [
   {

@@ -4,7 +4,7 @@ import { useRef, useState, useEffect, useCallback } from 'react'
 import { motion, useInView } from 'framer-motion'
 import Image from 'next/image'
 
-const WHATSAPP_URL = 'https://wa.me/5571997106376'
+const WHATSAPP_URL = 'https://wa.me/5571997106376?text=' + encodeURIComponent('Ola! Vim da pagina Sobre no site e gostaria de entrar em contato com Jeova Guedes.')
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },

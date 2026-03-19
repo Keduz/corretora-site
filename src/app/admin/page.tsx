@@ -986,6 +986,12 @@ export default function AdminPage() {
     setToast({ message: newStatus === 'publicado' ? 'Artigo publicado!' : 'Artigo movido para rascunho', type: 'success' })
   }, [blogPosts, saveBlogPosts])
 
+  const handleToggleFeatured = useCallback((post: BlogPost) => {
+    const updated = blogPosts.map(p => p.id === post.id ? { ...p, featured: !p.featured } : { ...p, featured: false })
+    saveBlogPosts(updated)
+    setToast({ message: post.featured ? 'Destaque removido' : `"${post.title}" agora e o destaque!`, type: 'success' })
+  }, [blogPosts, saveBlogPosts])
+
   const generateXML = useCallback(() => {
     const lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<imoveis>']
     localProperties.forEach((p) => {
@@ -1616,6 +1622,7 @@ export default function AdminPage() {
                         <th className="text-left px-4 py-3.5 font-semibold text-charcoal-500 text-xs tracking-wider uppercase hidden md:table-cell">Categoria</th>
                         <th className="text-left px-4 py-3.5 font-semibold text-charcoal-500 text-xs tracking-wider uppercase hidden md:table-cell">Data</th>
                         <th className="text-center px-4 py-3.5 font-semibold text-charcoal-500 text-xs tracking-wider uppercase">Status</th>
+                        <th className="text-center px-3 py-3.5 font-semibold text-charcoal-500 text-xs tracking-wider uppercase hidden md:table-cell">Destaque</th>
                         <th className="text-right px-5 py-3.5 font-semibold text-charcoal-500 text-xs tracking-wider uppercase">Acoes</th>
                       </tr>
                     </thead>
@@ -1653,6 +1660,17 @@ export default function AdminPage() {
                               }`}
                             >
                               {post.status === 'publicado' ? 'Publicado' : 'Rascunho'}
+                            </button>
+                          </td>
+                          <td className="px-3 py-4 text-center hidden md:table-cell">
+                            <button
+                              onClick={() => handleToggleFeatured(post)}
+                              className={`p-1.5 rounded-lg transition-all ${post.featured ? 'text-gold-500 hover:text-gold-600 scale-110' : 'text-charcoal-300 hover:text-gold-400'}`}
+                              title={post.featured ? 'Remover destaque' : 'Definir como destaque'}
+                            >
+                              <svg className="w-5 h-5" fill={post.featured ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+                              </svg>
                             </button>
                           </td>
                           <td className="px-5 py-4 text-right">
@@ -1782,7 +1800,14 @@ export default function AdminPage() {
                           className="w-full px-4 py-3 border-2 border-sand-200 rounded-xl bg-sand-50 text-charcoal-800 outline-none focus:border-olive-500 h-64 resize-y font-mono text-sm"
                           placeholder="## Titulo da secao\n\nParagrafo aqui...\n\n- Item de lista\n- Outro item"
                         />
-                        <span className="text-[10px] text-charcoal-300 mt-1 block">Use ## para titulos, - para listas, **texto** para negrito</span>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          <span className="text-[10px] text-charcoal-400 bg-sand-100 px-2 py-0.5 rounded">## Titulo</span>
+                          <span className="text-[10px] text-charcoal-400 bg-sand-100 px-2 py-0.5 rounded">### Subtitulo</span>
+                          <span className="text-[10px] text-charcoal-400 bg-sand-100 px-2 py-0.5 rounded">- Lista</span>
+                          <span className="text-[10px] text-charcoal-400 bg-sand-100 px-2 py-0.5 rounded">**negrito**</span>
+                          <span className="text-[10px] text-charcoal-400 bg-sand-100 px-2 py-0.5 rounded">![legenda](url-da-imagem)</span>
+                          <span className="text-[10px] text-charcoal-400 bg-sand-100 px-2 py-0.5 rounded">@youtube(ID_DO_VIDEO)</span>
+                        </div>
                       </div>
                       {/* Featured + Status */}
                       <div className="flex items-center gap-6">
