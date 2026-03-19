@@ -585,7 +585,7 @@ export default function Hero() {
             <img
               src="/logo.png"
               alt="Jeová Guedes Imoveis"
-              className="h-14 md:h-24 w-auto brightness-0 invert drop-shadow-[0_0_20px_rgba(46,158,166,0.4)]"
+              className="h-[4.5rem] md:h-24 w-auto brightness-0 invert drop-shadow-[0_0_20px_rgba(46,158,166,0.4)]"
             />
           </motion.div>
 
