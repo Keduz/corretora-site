@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import type { Group, LineSegments, Color, Mesh, LineBasicMaterial as LBM } from 'three'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 interface BuildingConfig {
   label: string
@@ -56,6 +57,7 @@ const fadeUp = {
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null)
   const tooltipRef = useRef<HTMLDivElement>(null)
+  const { t } = useLanguage()
 
   useEffect(() => {
     let mounted = true
@@ -629,7 +631,7 @@ export default function Hero() {
                 </div>
                 {/* Text */}
                 <div className="flex flex-col leading-tight">
-                  <span className="text-[9px] md:text-[11px] uppercase tracking-[0.15em] md:tracking-[0.2em] text-[#4CB8BF] font-semibold">Corretor Credenciado</span>
+                  <span className="text-[9px] md:text-[11px] uppercase tracking-[0.15em] md:tracking-[0.2em] text-[#4CB8BF] font-semibold">{t('hero.badge.label')}</span>
                   <span className="text-sm md:text-lg font-bold tracking-wide md:tracking-wider text-white">CRECI-BA 022-670</span>
                 </div>
                 {/* Verified tag */}
@@ -640,7 +642,7 @@ export default function Hero() {
                     border: '1px solid rgba(76,184,191,0.3)',
                   }}
                 >
-                  <span className="text-[8px] md:text-[11px] uppercase tracking-[0.1em] md:tracking-[0.15em] text-[#4CB8BF] font-bold">Verificado</span>
+                  <span className="text-[8px] md:text-[11px] uppercase tracking-[0.1em] md:tracking-[0.15em] text-[#4CB8BF] font-bold">{t('hero.badge.verified')}</span>
                 </div>
               </div>
             </div>
@@ -661,7 +663,7 @@ export default function Hero() {
             animate="visible"
             variants={fadeUp}
           >
-            Nossos Im&oacute;veis
+            {t('hero.title')}
           </motion.h1>
 
           <motion.div
@@ -684,7 +686,7 @@ export default function Hero() {
                 e.currentTarget.style.color = '#2e9ea6'
               }}
             >
-              Explorar Im&oacute;veis
+              {t('hero.cta')}
               <svg
                 className="w-4 h-4"
                 fill="none"

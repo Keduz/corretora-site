@@ -5,14 +5,16 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { openWhatsApp } from '@/utils/whatsapp'
+import { useLanguage } from '@/i18n/LanguageContext'
+import type { TranslationKey } from '@/i18n/translations'
 
-const quickLinks = [
-  { label: 'Inicio', href: '/' },
-  { label: 'Imoveis', href: '/imoveis' },
-  { label: 'Sobre', href: '/sobre' },
-  { label: 'Servicos', href: '/servicos' },
-  { label: 'Portais', href: '/portais' },
-  { label: 'Contato', href: '/contato' },
+const quickLinks: { key: TranslationKey; href: string }[] = [
+  { key: 'nav.inicio', href: '/' },
+  { key: 'nav.imoveis', href: '/imoveis' },
+  { key: 'nav.sobre', href: '/sobre' },
+  { key: 'nav.servicos', href: '/servicos' },
+  { key: 'nav.portais', href: '/portais' },
+  { key: 'nav.contato', href: '/contato' },
 ]
 
 const cities = [
@@ -33,6 +35,7 @@ const fadeInUp = {
 
 export default function Footer() {
   const pathname = usePathname()
+  const { t } = useLanguage()
 
   return (
     <footer className="bg-charcoal-900 text-sand-200">
@@ -63,12 +66,11 @@ export default function Footer() {
               </span>
             </Link>
             <p className="mt-4 text-sand-300 text-sm leading-relaxed max-w-xs">
-              Corretor de Imoveis - Porto de Sauipe, BA
+              {t('footer.subtitle')}
             </p>
             <div className="gold-divider mt-4" />
             <p className="mt-4 text-sand-400 text-xs leading-relaxed max-w-xs">
-              Os melhores precos e as melhores oportunidades em imoveis no litoral da Bahia.
-              Atendimento personalizado e exclusivo.
+              {t('footer.tagline')}
             </p>
 
             {/* Social Icons */}
@@ -122,7 +124,7 @@ export default function Footer() {
             variants={fadeInUp}
           >
             <h3 className="font-heading text-lg font-semibold text-gold-400 mb-6">
-              Links Rapidos
+              {t('footer.links')}
             </h3>
             <ul className="space-y-3">
               {quickLinks.map((link) => (
@@ -132,7 +134,7 @@ export default function Footer() {
                     className="text-sand-300 text-sm hover:text-gold-400 transition-colors duration-300 inline-flex items-center gap-2 group"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-charcoal-600 group-hover:bg-gold-400 transition-colors duration-300" />
-                    {link.label}
+                    {t(link.key)}
                   </Link>
                 </li>
               ))}
@@ -148,7 +150,7 @@ export default function Footer() {
             variants={fadeInUp}
           >
             <h3 className="font-heading text-lg font-semibold text-gold-400 mb-6">
-              Cidades
+              {t('footer.cities')}
             </h3>
             <ul className="space-y-3">
               {cities.map((city) => (
@@ -174,7 +176,7 @@ export default function Footer() {
             variants={fadeInUp}
           >
             <h3 className="font-heading text-lg font-semibold text-gold-400 mb-6">
-              Contato
+              {t('footer.contact')}
             </h3>
             <ul className="space-y-4">
               {/* Phone */}
@@ -272,20 +274,20 @@ export default function Footer() {
         <div className="mt-16 pt-8 border-t border-charcoal-700">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sand-400 text-xs text-center md:text-left">
-              &copy; 2026 Jeová Guedes Corretor de Imoveis &bull; CRECI-BA 022-670. Todos os direitos reservados.
+              {t('footer.copyright')}
             </p>
             <div className="flex items-center gap-6">
               <Link
                 href="/privacidade"
                 className="text-sand-500 text-xs hover:text-gold-400 transition-colors duration-300"
               >
-                Politica de Privacidade
+                {t('footer.privacy')}
               </Link>
               <Link
                 href="/termos"
                 className="text-sand-500 text-xs hover:text-gold-400 transition-colors duration-300"
               >
-                Termos de Uso
+                {t('footer.terms')}
               </Link>
             </div>
           </div>

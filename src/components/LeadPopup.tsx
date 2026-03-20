@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 const STORAGE_KEY = 'lead_popup_shown'
 
@@ -10,6 +11,7 @@ export default function LeadPopup() {
   const [enviado, setEnviado] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const [form, setForm] = useState({ nome: '', telefone: '', email: '' })
+  const { t } = useLanguage()
 
   useEffect(() => {
     if (localStorage.getItem(STORAGE_KEY)) return
@@ -98,7 +100,7 @@ export default function LeadPopup() {
                         transition={{ delay: 0.3 }}
                         className="font-heading text-2xl font-bold text-charcoal-800"
                       >
-                        Encontre seu imovel ideal
+                        {t('popup.title')}
                       </motion.h3>
                       <motion.p
                         initial={{ opacity: 0, y: 10 }}
@@ -106,7 +108,7 @@ export default function LeadPopup() {
                         transition={{ delay: 0.4 }}
                         className="text-charcoal-500 mt-2 text-sm"
                       >
-                        Deixe seus dados e um consultor entrara em contato com as melhores opcoes para voce.
+                        {t('popup.subtitle')}
                       </motion.p>
                     </div>
 
@@ -120,21 +122,21 @@ export default function LeadPopup() {
                     >
                       <div>
                         <label className="block text-xs font-semibold text-charcoal-600 uppercase tracking-wider mb-1.5">
-                          Nome *
+                          {t('popup.name')} *
                         </label>
                         <input
                           type="text"
                           required
                           value={form.nome}
                           onChange={(e) => setForm({ ...form, nome: e.target.value })}
-                          placeholder="Seu nome completo"
+                          placeholder={t('popup.name')}
                           className="w-full px-4 py-3 rounded-lg border border-sand-300 bg-sand-50/50 text-charcoal-800 placeholder:text-charcoal-300 focus:outline-none focus:ring-2 focus:ring-olive-400 focus:border-transparent transition-all"
                         />
                       </div>
 
                       <div>
                         <label className="block text-xs font-semibold text-charcoal-600 uppercase tracking-wider mb-1.5">
-                          Telefone *
+                          {t('popup.phone')} *
                         </label>
                         <input
                           type="tel"
@@ -148,7 +150,7 @@ export default function LeadPopup() {
 
                       <div>
                         <label className="block text-xs font-semibold text-charcoal-600 uppercase tracking-wider mb-1.5">
-                          Email <span className="text-charcoal-300 normal-case">(opcional)</span>
+                          {t('popup.email')} <span className="text-charcoal-300 normal-case">{t('popup.optional')}</span>
                         </label>
                         <input
                           type="email"
@@ -170,15 +172,15 @@ export default function LeadPopup() {
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                             </svg>
-                            Enviando...
+                            {t('popup.sending')}
                           </span>
                         ) : (
-                          'Quero ser contactado'
+                          t('popup.send')
                         )}
                       </button>
 
                       <p className="text-center text-[11px] text-charcoal-400">
-                        Seus dados estao seguros conosco.
+                        {t('popup.safe')}
                       </p>
                     </motion.form>
                   </>
@@ -200,10 +202,10 @@ export default function LeadPopup() {
                       </svg>
                     </motion.div>
                     <h3 className="font-heading text-2xl font-bold text-charcoal-800 mb-2">
-                      Recebemos seus dados!
+                      {t('popup.success.title')}
                     </h3>
                     <p className="text-charcoal-500 text-sm">
-                      Em breve um consultor entrara em contato.
+                      {t('popup.success.subtitle')}
                     </p>
                   </motion.div>
                 )}
