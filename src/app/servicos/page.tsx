@@ -63,6 +63,25 @@ const services = [
     ),
   },
   {
+    title: 'Topografia',
+    subtitle: 'Levantamento topografico profissional',
+    description:
+      'Realizamos servicos completos de topografia para terrenos, loteamentos e empreendimentos. Nossa equipe utiliza equipamentos de alta precisao para garantir levantamentos confiaveis, essenciais para projetos de construcao, regularizacao fundiaria e divisao de areas.',
+    benefits: [
+      'Levantamento planialtimetrico e cadastral',
+      'Demarcacao e divisao de terrenos e lotes',
+      'Georreferenciamento de imoveis rurais e urbanos',
+      'Locacao de obras e acompanhamento topografico',
+      'Laudos tecnicos e memoriais descritivos',
+    ],
+    image: 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=800&h=600&fit=crop&q=80',
+    icon: (
+      <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
+      </svg>
+    ),
+  },
+  {
     title: 'Consultoria de Investimento',
     subtitle: 'Orientacao estrategica para investidores',
     description:
