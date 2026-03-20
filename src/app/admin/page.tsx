@@ -892,7 +892,7 @@ type Lead = {
   telefone: string
   email: string | null
   origem: string
-  criadoEm: string
+  criado_em: string
   lido: boolean
 }
 
@@ -1013,7 +1013,7 @@ function LeadsSection() {
                       </span>
                     )}
                     <span className="text-charcoal-300 text-xs">
-                      {new Date(lead.criadoEm).toLocaleString('pt-BR')}
+                      {new Date(lead.criado_em).toLocaleString('pt-BR')}
                     </span>
                   </div>
                 </div>

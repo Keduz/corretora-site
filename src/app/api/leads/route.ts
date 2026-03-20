@@ -1,20 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { sql } from '@vercel/postgres'
+import { initLeadsTable } from '@/lib/db'
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
-    const { nome, telefone, email } = body
+    await initLeadsTable()
+    const { nome, telefone, email } = await req.json()
 
     if (!nome || !telefone) {
       return NextResponse.json({ error: 'Nome e telefone obrigatorios' }, { status: 400 })
     }
 
-    const lead = await prisma.lead.create({
-      data: { nome, telefone, email: email || null },
-    })
+    const { rows } = await sql`
+      INSERT INTO leads (nome, telefone, email)
+      VALUES (${nome}, ${telefone}, ${email || null})
+      RETURNING *
+    `
 
-    return NextResponse.json(lead, { status: 201 })
+    return NextResponse.json(rows[0], { status: 201 })
   } catch (err) {
     console.error('POST /api/leads error:', err)
     return NextResponse.json({ error: 'Erro ao salvar lead' }, { status: 500 })
@@ -23,10 +26,9 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
-    const leads = await prisma.lead.findMany({
-      orderBy: { criadoEm: 'desc' },
-    })
-    return NextResponse.json(leads)
+    await initLeadsTable()
+    const { rows } = await sql`SELECT * FROM leads ORDER BY criado_em DESC`
+    return NextResponse.json(rows)
   } catch (err) {
     console.error('GET /api/leads error:', err)
     return NextResponse.json({ error: 'Erro ao buscar leads' }, { status: 500 })
