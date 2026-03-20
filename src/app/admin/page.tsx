@@ -53,7 +53,7 @@ const statusColors: Record<string, string> = {
 
 const PORTAIS_STORAGE_KEY = 'corretora-admin-portais'
 
-type NavSection = 'dashboard' | 'imoveis' | 'blog' | 'portais' | 'configuracoes'
+type NavSection = 'dashboard' | 'imoveis' | 'blog' | 'portais' | 'leads' | 'configuracoes'
 
 type PortalConfig = {
   apiKey: string
@@ -243,6 +243,15 @@ function Sidebar({
             strokeLinejoin="round"
             d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.02a4.5 4.5 0 00-6.364-6.364L4.5 8.257m10.5-1.5l2.25 2.25M16.5 12h3m-1.5-3v6"
           />
+        </svg>
+      ),
+    },
+    {
+      key: 'leads',
+      label: 'Leads',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
         </svg>
       ),
     },
@@ -872,6 +881,165 @@ function DeleteDialog({
           </button>
         </div>
       </div>
+    </div>
+  )
+}
+
+/* ─────────── Leads Section ─────────── */
+type Lead = {
+  id: number
+  nome: string
+  telefone: string
+  email: string | null
+  origem: string
+  criadoEm: string
+  lido: boolean
+}
+
+function LeadsSection() {
+  const [leads, setLeads] = useState<Lead[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const fetchLeads = useCallback(async () => {
+    try {
+      const res = await fetch('/api/leads')
+      if (res.ok) {
+        const data = await res.json()
+        setLeads(data)
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchLeads()
+  }, [fetchLeads])
+
+  const marcarLido = async (id: number) => {
+    try {
+      await fetch(`/api/leads/${id}`, { method: 'PATCH' })
+      setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, lido: true } : l)))
+    } catch {
+      // silently fail
+    }
+  }
+
+  const deletarLead = async (id: number) => {
+    if (!confirm('Excluir este lead?')) return
+    try {
+      await fetch(`/api/leads/${id}`, { method: 'DELETE' })
+      setLeads((prev) => prev.filter((l) => l.id !== id))
+    } catch {
+      // silently fail
+    }
+  }
+
+  const naoLidos = leads.filter((l) => !l.lido).length
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-6 h-6 border-2 border-olive-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h2 className="font-heading text-2xl sm:text-3xl font-bold text-charcoal-800">Leads</h2>
+          <p className="text-charcoal-400 mt-1">
+            {leads.length} lead{leads.length !== 1 ? 's' : ''} capturado{leads.length !== 1 ? 's' : ''}
+            {naoLidos > 0 && (
+              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-olive-100 text-olive-700">
+                {naoLidos} novo{naoLidos !== 1 ? 's' : ''}
+              </span>
+            )}
+          </p>
+        </div>
+        <button
+          onClick={fetchLeads}
+          className="px-4 py-2 rounded-xl text-sm font-medium text-charcoal-600 hover:bg-sand-100 transition-colors border border-sand-200"
+        >
+          <svg className="w-4 h-4 inline mr-1.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
+          </svg>
+          Atualizar
+        </button>
+      </div>
+
+      {leads.length === 0 ? (
+        <div className="bg-white rounded-2xl p-12 shadow-sm border border-sand-100 text-center">
+          <svg className="w-12 h-12 mx-auto mb-4 text-charcoal-200" fill="none" stroke="currentColor" strokeWidth="1" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+          </svg>
+          <p className="text-charcoal-400 font-medium">Nenhum lead capturado ainda</p>
+          <p className="text-charcoal-300 text-sm mt-1">Os leads do popup aparecerao aqui.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {leads.map((lead) => (
+            <div
+              key={lead.id}
+              className={`bg-white rounded-2xl p-5 shadow-sm border transition-all ${
+                lead.lido ? 'border-sand-100' : 'border-olive-200 bg-olive-50/30'
+              }`}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    {!lead.lido && (
+                      <span className="w-2 h-2 rounded-full bg-olive-500 flex-shrink-0" />
+                    )}
+                    <h4 className="font-semibold text-charcoal-800 truncate">{lead.nome}</h4>
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-charcoal-500">
+                    <span className="flex items-center gap-1.5">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                      </svg>
+                      {lead.telefone}
+                    </span>
+                    {lead.email && (
+                      <span className="flex items-center gap-1.5">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                        </svg>
+                        {lead.email}
+                      </span>
+                    )}
+                    <span className="text-charcoal-300 text-xs">
+                      {new Date(lead.criadoEm).toLocaleString('pt-BR')}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {!lead.lido && (
+                    <button
+                      onClick={() => marcarLido(lead.id)}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium text-olive-700 bg-olive-100 hover:bg-olive-200 transition-colors"
+                    >
+                      Marcar lido
+                    </button>
+                  )}
+                  <button
+                    onClick={() => deletarLead(lead.id)}
+                    className="p-1.5 rounded-lg text-charcoal-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -2687,6 +2855,9 @@ export default function AdminPage() {
               </div>
             )
           })()}
+
+          {/* ──────── Leads Section ──────── */}
+          {section === 'leads' && <LeadsSection />}
 
           {/* ──────── Configuracoes Section ──────── */}
           {section === 'configuracoes' && (

@@ -6,6 +6,7 @@ import Navbar from './Navbar'
 import Footer from './Footer'
 import WhatsAppFloat from './WhatsAppFloat'
 import CompareBar from './CompareBar'
+import LeadPopup from './LeadPopup'
 
 export default function ConditionalShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
@@ -22,6 +23,7 @@ export default function ConditionalShell({ children }: { children: ReactNode }) 
       <Footer />
       <CompareBar />
       <WhatsAppFloat />
+      <LeadPopup />
     </>
   )
 }
