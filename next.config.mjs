@@ -3,7 +3,9 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  serverExternalPackages: ['better-sqlite3', '@prisma/adapter-better-sqlite3'],
+  experimental: {
+    serverComponentsExternalPackages: ['better-sqlite3', '@prisma/adapter-better-sqlite3'],
+  },
 };
 
 export default nextConfig;
